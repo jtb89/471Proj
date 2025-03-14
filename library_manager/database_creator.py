@@ -1,10 +1,10 @@
 import mysql.connector
-
+'''
 # Database parameters
 dataBase = mysql.connector.connect(
     host = "localhost",
     user = "root",
-    passwd = "471ProjServer",
+    passwd = "K!ck1ngHorse",
 
 )
 
@@ -14,12 +14,12 @@ cursor = dataBase.cursor()
 # Create database
 cursor.execute("CREATE DATABASE IF NOT EXISTS library_db")
 dataBase.close()
-
+'''
 # Connect to database
 dataBase = mysql.connector.connect(
     host = "localhost",
     user = "root",
-    passwd = "471ProjServer",
+    passwd = "K!ck1ngHorse",
     database = "library_db"
 )
 # Get new cursor object
@@ -58,13 +58,13 @@ book = """ CREATE TABLE IF NOT EXISTS BOOK(
     genre VARCHAR(255) NOT NULL,
     year_written YEAR,
     isbn INT NOT NULL,
-    PRIMARY KEY(isbn),
+    PRIMARY KEY(isbn)
     )ENGINE=InnoDB; """
 cursor.execute(book)
 
 wrote = """ CREATE TABLE IF NOT EXISTS WROTE(
     isbn INT NOT NULL,
-    author_id INT NOT NULL
+    author_id INT NOT NULL,
     PRIMARY KEY(isbn),
     CONSTRAINT fk_WROTE_BOOK
         FOREIGN KEY (isbn) REFERENCES BOOK(isbn)
@@ -110,9 +110,6 @@ member = """CREATE TABLE IF NOT EXISTS MEMBER(
     PRIMARY KEY(card_number),
     CONSTRAINT fk_MEMBER_USER
         FOREIGN KEY (email) REFERENCES USER(email)
-        ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_MEMBER_USER
-        FOREIGN KEY (email) REFERENCES USER(email)
         ON UPDATE CASCADE ON DELETE CASCADE
 )ENGINE=InnoDB; """
 cursor.execute(member)
@@ -138,7 +135,7 @@ holds = """ CREATE TABLE IF NOT EXISTS HOLDS(
     isbn INT NOT NULL,
     card_number INT NOT NULL,
     hold_number INT NOT NULL,
-    PRIMARY KEY(card_nubmer),
+    PRIMARY KEY(card_number),
     CONSTRAINT fk_HOLDS_MEMBER
         FOREIGN KEY (card_number) REFERENCES MEMBER(card_number)
         ON UPDATE CASCADE ON DELETE CASCADE,
@@ -153,7 +150,7 @@ orders = """ CREATE TABLE IF NOT EXISTS ORDERS(
     num_copies INT NOT NULL,
     publisher VARCHAR(255) NOT NULL,
     order_num INT NOT NULL,
-    cost INT NOT NULL
+    cost INT NOT NULL,
     branch_num INT NOT NULL,
     employee_num INT NOT NULL,
     PRIMARY KEY(order_num),
@@ -176,7 +173,7 @@ owns = """ CREATE TABLE IF NOT EXISTS OWNS(
     isbn INT NOT NULL,
     num_availible INT NOT NULL,
     num_copies INT NOT NULL,
-    branch_id INT NOT NULL
+    branch_id INT NOT NULL,
     PRIMARY KEY(isbn),
     CONSTRAINT fk_OWNS_BOOK
         FOREIGN KEY (isbn) REFERENCES BOOK(isbn)
