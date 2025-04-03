@@ -1,16 +1,12 @@
-import React, { Component } from "react";
+import React from "react";
 
+const App = () => {
+  console.log("App Component is rendering...");
+  return (
+    <div className="app-container">
+      <h1>lfde</h1>
+    </div>
+  );
+};
 
-export default class App extends Component {
-    constructor(props) {
-        super(props);
-    }
-
-    render() {
-        return <h1>Testing code</h1>
-    }
-}
-
-
-const appDiv = document.getElementById("app");
-render(<App />, appDiv)
+export default App;
