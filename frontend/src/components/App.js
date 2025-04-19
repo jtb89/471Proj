@@ -1,11 +1,30 @@
 import React from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import Home from "./Homepage";
+import Header from "./header";
+import About from "./about";
+import Explore from "./explore";
+import Signin from "./signin";
+
+
+import "/static/css/index.css"
+
+
+
+
 
 const App = () => {
   return (
-    <div>
-      <h1 style={{ color: "white", backgroundColor: "blue" }}>Welcome to the Library</h1>
-      <p>This is a test of the homepage component!</p>
-    </div>
+    <BrowserRouter>
+
+    <Header />
+    <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/about" element={<About />} />
+    <Route path="/explore" element={<Explore />} />
+    <Route path="/signin" element={<Signin />} />
+    </Routes>
+    </BrowserRouter>
   );
 };
 
