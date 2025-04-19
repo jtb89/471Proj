@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (add_member_view, delete_user_member_view, authenticate_member_view, update_member_view, add_book_view,
                     delete_book_view, update_book_view, process_borrow_view, process_return_view, update_charges_view,
-                    create_hold_view, delete_hold_view, place_order_view, cancel_order_view, track_order_view)
+                    create_hold_view, delete_hold_view, place_order_view, cancel_order_view, track_order_view, get_books_view)
+from . import apiveiws
 
 urlpatterns = [
     path('add-member/', add_member_view, name='add_member'),
@@ -18,5 +19,9 @@ urlpatterns = [
     path('delete-hold/', delete_hold_view, name='delete_hold'),
     path('place-order/', place_order_view, name='place_order'),
     path('cancel-order/', cancel_order_view, name='cancel_order'),
-    path('track-order/', track_order_view, name='track_order')
+    path('track-order/', track_order_view, name='track_order'),
+    path('books/', get_books_view, name='get_books'),
+    path('api/books/', apiveiws.get_books_api, name='get_books_api'),
+    path('api/books/add/', apiveiws.add_book_api, name='add_book_api'),
+
 ]

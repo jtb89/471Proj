@@ -5,6 +5,7 @@ import Header from "./header";
 import About from "./about";
 import Explore from "./explore";
 import Signin from "./signin";
+import BookManagement from "./bookmange";
 
 
 import "/static/css/index.css"
@@ -23,6 +24,7 @@ const App = () => {
     <Route path="/about" element={<About />} />
     <Route path="/explore" element={<Explore />} />
     <Route path="/signin" element={<Signin />} />
+    <Route path="/bookmange" element={<BookManagement />} />
     </Routes>
     </BrowserRouter>
   );

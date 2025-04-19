@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from . import database_functions
 
-
 def add_member_view(request):
     if request.method == 'POST':
         f_name = request.POST.get('f_name')
@@ -181,3 +180,13 @@ def track_order_view(request):
         return render(request, 'success.html', {'result': result})
     else:
         return render(request, 'track_order_form.html')
+
+
+### stuff josh added for testing
+
+def get_books_view(request):
+    books_result = database_functions.get_all_books()
+    if books_result["success"]:
+        return render(request, 'books_list.html', {'books': books_result["books"]})
+    else:
+        return render(request, 'error.html', {'error': books_result["error"]})

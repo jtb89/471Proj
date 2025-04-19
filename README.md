@@ -18,3 +18,9 @@ after download in terminal run:
   " npm run dev" still inside the frontend directory to start the react stuff
   and now by going to http://127.0.0.1:8000 the frontend should be loaded
 
+  super user admin page log in = 
+  username: user
+  email bib@email.ca
+  password: password
+
+

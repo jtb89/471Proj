@@ -1,5 +1,7 @@
 import React from 'react';
 import { TextField, Button, Box, Typography } from '@mui/material';
+import Container from '@mui/material/Container';
+
 
 const Home = () => {
   return (
@@ -16,6 +18,7 @@ const Home = () => {
         }}
       >
         {/* Overlay with text */}
+        <Container component="main" maxWidth="xs">
         <Box
           sx={{
             position: 'absolute',
@@ -26,7 +29,7 @@ const Home = () => {
             color: 'white',
           }}
         >
-          <Typography variant="h2" sx={{ fontWeight: 'bold', mb: 2 }}>
+          <Typography variant="h1" sx={{ fontWeight: 'bold', mb: 2, color: 'black'  }}>
             Library
           </Typography>
           
@@ -55,7 +58,14 @@ const Home = () => {
             }}
           />
         </Box>
+        </Container>
       </Box>
+
+      <Container>
+        <Typography>
+          asdfnlkann
+        </Typography>
+      </Container>
     </>
   );
 };

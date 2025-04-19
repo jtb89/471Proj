@@ -157,7 +157,41 @@ def update_member(card_number, f_name=None, l_name=None, address=None, dob=None,
         dataBase.close()
 
 
-def add_book(title, genre, year_written, isbn, num_copies, num_availible, branch_id, author_id=None):
+
+# def add_book(title, genre, year_written, isbn, author_id=None):
+#     try:
+#         dataBase = mysql.connector.connect(
+#             host="localhost",
+#             user="root",
+#             passwd="471ProjServer",
+#             database="library_db"
+#         )
+#         cursor = dataBase.cursor()
+
+#         insert_book_sql = """
+#         INSERT INTO BOOK (title, genre, year_written, isbn, author_id)
+#         VALUES (%s, %s, %s, %s)
+#         """
+#         cursor.execute(insert_book_sql, (title, genre, year_written, isbn, author_id))
+
+#         if author_id is not None:
+#             insert_wrote_sql = """
+#             INSERT INTO WROTE (isbn, author_id)
+#             VALUES (%s, %s)
+#             """
+#             cursor.execute(insert_wrote_sql, (isbn, author_id))
+
+#         dataBase.commit()
+#         return "Book added successfully"
+
+#     except mysql.connector.Error as err:
+#         dataBase.rollback()
+#         return f"Error: {err}"
+#     finally:
+#         cursor.close()
+#         dataBase.close()
+
+def add_book(title, genre, year_written, isbn, author_id=None):
     try:
         dataBase = mysql.connector.connect(
             host="localhost",
@@ -167,13 +201,15 @@ def add_book(title, genre, year_written, isbn, num_copies, num_availible, branch
         )
         cursor = dataBase.cursor()
 
-        insert_book_sql = """
-        INSERT INTO BOOK (title, genre, year_written, isbn, author_id)
-        VALUES (%s, %s, %s, %s)
-        """
-        cursor.execute(insert_book_sql, (title, genre, year_written, isbn, author_id))
-
+        # If author_id is provided, include it in the SQL query
         if author_id is not None:
+            insert_book_sql = """
+            INSERT INTO BOOK (title, genre, year_written, isbn, author_id)
+            VALUES (%s, %s, %s, %s, %s)
+            """
+            cursor.execute(insert_book_sql, (title, genre, year_written, isbn, author_id))
+
+            # If an author_id is provided, insert into the WROTE table
             insert_wrote_sql = """
             INSERT INTO WROTE (isbn, author_id)
             VALUES (%s, %s)
@@ -187,14 +223,21 @@ def add_book(title, genre, year_written, isbn, num_copies, num_availible, branch
         cursor.execute(insert_owns_sql, (isbn, branch_id, num_copies, num_availible))
 
         dataBase.commit()
+
+        # Add debug to confirm the commit was successful
+        print(f"Book '{title}' with ISBN {isbn} added successfully.")
+        
         return "Book added successfully"
 
     except mysql.connector.Error as err:
         dataBase.rollback()
+        print(f"Error: {err}")  # Print the error to help debugging
         return f"Error: {err}"
     finally:
         cursor.close()
         dataBase.close()
+
+
 
 def delete_book(isbn):
     try:
@@ -521,6 +564,59 @@ def delete_hold(hold_number=None, card_number=None, isbn=None):
         cursor.close()
         database.close()
 
+## stuff josh added for testing
+
+
+
+# def get_all_books():
+#     import mysql.connector
+    
+#     try:
+#         # Establish connection to MySQL
+#         connection = mysql.connector.connect(
+#             host="localhost",
+#             user="root",
+#             password="471ProjServer",
+#             database="library_db"
+#         )
+        
+#         cursor = connection.cursor(dictionary=True)
+#         query = "SELECT * FROM Book"
+#         cursor.execute(query)
+        
+#         books = cursor.fetchall()
+        
+#         cursor.close()
+#         connection.close()
+        
+#         return {"success": True, "books": books}
+#     except mysql.connector.Error as err:
+#         return {"success": False, "error": str(err)}
+
+def get_all_books():
+    import mysql.connector
+
+    try:
+        connection = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="471ProjServer",
+            database="library_db"
+        )
+        
+        cursor = connection.cursor(dictionary=True)
+        query = "SELECT * FROM BOOK"
+        cursor.execute(query)
+        
+        books = cursor.fetchall()
+        
+        cursor.close()
+        connection.close()
+        
+        return {"success": True, "books": books}
+    except mysql.connector.Error as err:
+        print("Database error in get_all_books():", err)  # <-- ADD THIS
+        return {"success": False, "error": str(err)}
 
 def place_order(isbn, num_copies, publisher, order_num, cost, branch_num, employee_num):
     try:

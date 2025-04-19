@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
+import Avatar from '@mui/material/Avatar';
 import Button from "@mui/material/Button";
 
 // const cc = #f5f5f5
@@ -33,7 +33,7 @@ export default function Header() {
         <Button
           color="inherit"
           component={Link}
-          to="./explore"
+          to="/explore"
           sx={{ mx: 1, color: 'black' }}
         >
           Explore
@@ -55,6 +55,7 @@ export default function Header() {
           sx={{ mx: 1, color: 'black' }}
         >
           Sign in
+          <Avatar sx={{ m: 1, bgcolor: 'black' }}></Avatar>
           </Button>
         </div>
       </Toolbar>
