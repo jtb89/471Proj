@@ -1,10 +1,10 @@
 import React from "react";
 
 const App = () => {
-  console.log("App Component is rendering...");
   return (
-    <div className="app-container">
-      <h1>lfde</h1>
+    <div>
+      <h1 style={{ color: "white", backgroundColor: "blue" }}>Welcome to the Library</h1>
+      <p>This is a test of the homepage component!</p>
     </div>
   );
 };
