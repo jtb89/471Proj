@@ -12,6 +12,9 @@ after download in terminal run:
   from a second terminal differnt from the django server cd into the frontend directory
   if first time run "npm install" to download dependencies
 
-  then with the django server running type
+  now useing matirial ui stuff for css
+
+  then with the django server running type  python manage.py runserver
   " npm run dev" still inside the frontend directory to start the react stuff
   and now by going to http://127.0.0.1:8000 the frontend should be loaded
+
