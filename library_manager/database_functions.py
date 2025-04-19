@@ -1,5 +1,5 @@
 import mysql.connector
-
+import library_manager
 def add_member(f_name, l_name, address, dob, email, phonenum, checked_out_books, late_charges, card_number, pin):
     try:
         # Connect to the database
@@ -42,7 +42,12 @@ def add_member(f_name, l_name, address, dob, email, phonenum, checked_out_books,
 
 def delete_user_member(card_number):
     try:
-        dataBase = mysql.connector.connect()
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
         cursor = dataBase.cursor()
 
         get_email_sql = """
@@ -72,7 +77,12 @@ def delete_user_member(card_number):
 
 def authenticate_member(card_number, input_pin):
     try:
-        dataBase = mysql.connector.connect()
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
         cursor = dataBase.cursor()
 
         get_pin = """
@@ -96,7 +106,12 @@ def authenticate_member(card_number, input_pin):
 
 def add_book(title, genre, year_written, isbn, author_id=None):
     try:
-        dataBase = mysql.connector.connect()
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
         cursor = dataBase.cursor()
 
         insert_book_sql = """
@@ -124,7 +139,12 @@ def add_book(title, genre, year_written, isbn, author_id=None):
 
 def delete_book(isbn):
     try:
-        dataBase = mysql.connector.connect()
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
         cursor = dataBase.cursor()
 
         check_borrow_sql = """
@@ -152,7 +172,12 @@ def delete_book(isbn):
 
 def process_borrow(card_number, isbn, date_out, date_due, branch_id):
     try:
-        dataBase = mysql.connector.connect()
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
         cursor = dataBase.cursor()
 
         check_owns_sql = """
@@ -194,5 +219,220 @@ def process_borrow(card_number, isbn, date_out, date_due, branch_id):
         dataBase.close()
 
 
+def process_return(card_number, isbn, date_in, branch_id):
+    try:
+        database = mysql.connector.connect(
+            host="localhost",
+            user ="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = database.cursor()
+
+        #Update the BORROW table to set the date_in
+        update_borrow_sql = """
+            UPDATE BORROW
+                SET date_in = %s
+            WHERE card_number = %s AND isbn = %s AND date_in IS NULL
+        """
+        cursor.execute(update_borrow_sql, (date_in, card_number, isbn))
+
+        # check if any rows were updated (if 0, might be invalid or already returned)
+        if cursor.rowcount == 0:
+            return "No matching borrow record found or book already returned"
+
+        # Re-increment availability in OWNS
+        update_owns_sql = """
+            UPDATE OWNS
+                SET num_availible = num_availible + 1
+            WHERE isbn = %s AND branch_id = %s
+        """
+        cursor.execute(update_owns_sql, (isbn, branch_id))
+
+        database.commit()
+        return "Book returned successfully"
+
+    except mysql.connector.Error as err:
+        database.rollback()
+        return f"Error: {err}"
+    finally:
+        cursor.close()
+        database.close()
+
+
+def update_charges(card_number, additional_fine):
+    try:
+        database = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = database.cursor()
+
+        # retreve the current late charges
+        get_fine_sql = """
+            SELECT late_charges
+                FROM MEMBER
+            WHERE card_number = %s
+        """
+        cursor.execute(get_fine_sql, (card_number,))
+        row = cursor.fetchone()
+
+        if not row:
+            return "No member found."
+
+        current_fine = row[0]
+        new_fine = current_fine + additional_fine
+
+        # update MEMBER table with new fine
+        set_fine_sql = """
+            UPDATE MEMBER
+                SET late_charges = %s
+            WHERE card_number = %s
+        """
+        cursor.execute(set_fine_sql, (new_fine, card_number))
+        database.commit()
+        return f"Late charges updated successfully. New fine: {new_fine}"
+
+    except mysql.connector.Error as err:
+        database.rollback()
+        return f"Error: {err}"
+    finally:
+        cursor.close()
+        database.close()
+
+
+def update_queue(isbn):
+    try:
+        database = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = database.cursor()
+
+        select_holds_sql = """
+            SELECT hold_number
+                FROM HOLDS
+            WHERE isbn = %s
+            ORDER BY hold_number ASC
+        """
+        cursor.execute(select_holds_sql, (isbn,))
+        holds = cursor.fetchall()
+
+        new_pos = 1
+        update_pos_sql = """
+            UPDATE HOLDS
+                SET queue_position = %s
+            WHERE hold_number = %s
+        """
+        for row in holds:
+            hold_number = row[0]
+            cursor.execute(update_pos_sql, (new_pos, hold_number))
+            new_pos += 1
+
+        database.comit()
+
+    except mysql.connector.Error as err:
+        database.rollback()
+        return f"Error: {err}"
+    finally:
+        cursor.close()
+        database.close()
+
+
+def create_hold(card_number, isbn, branch_id):
+    try:
+        database = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = database.cursor()
+
+        # Check how many copies are owned and avaiable
+        check_owns_sql = """
+            SELECT num_copies, num_availible
+            FROM OWNS
+            WHERE isbn = %s AND branch_id = %s     
+        """
+        cursor.execute(check_owns_sql, (isbn, branch_id))
+        row = cursor.fetchone()
+        if not row:
+            return "Book not owned by this branch"
+
+        num_copies, num_availible = row
+
+        # count existing holds
+        holds_sql = """
+            SELECT COUNT(*)
+                FROM HOLDS
+            WHERE isbn = %s AND branch_id = %s
+        """
+        cursor.execute(holds_sql, (isbn, branch_id))
+        hold_count = cursor.fetchone()[0]
+
+        next_queue_position = hold_count + 1
+        instert_hold_sql = """
+        INSERT INTO HOLDS (queue_position, isbn, card_number, branch_id)
+            VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(instert_hold_sql, (next_queue_position, isbn, card_number, branch_id))
+        database.commit()
+        return f"Hold created successfully. You are position #{next_queue_position} in the queue."
+
+    except mysql.connector.Error as err:
+        database.rollback()
+        return f"Error: {err}"
+    finally:
+        cursor.close()
+        database.close()
+
+def delete_hold(hold_number=None, card_number=None, isbn=None):
+    try:
+        database = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = database.cursor()
+
+        if hold_number:
+            hold_isbn_sql = """
+                SELECT isbn
+                FROM HOLDS
+                WHERE hold_number = %s
+            """
+            cursor.execute(hold_isbn_sql, (hold_number,))
+            row = cursor.fetchone()
+            if row:
+                found_isbn = row[0]
+                delete_sql = """
+                    DELETE FROM HOLDS
+                    WHERE hold_number = %s
+                """
+                cursor.execute(delete_sql, (hold_number,))
+                update_queue(found_isbn)
+        elif isbn and card_number:
+            delete_sql = """
+                DELETE FROM HOLDS
+                WHERE isbn = %s AND card_number = %s
+            """
+            cursor.execute(delete_sql, (isbn, card_number))
+            update_queue(isbn)
+        else:
+            return "Please provide either a hold number or both an ISBN and card number."
+        database.commit()
+        return "Hold deleted successfully."
+    except mysql.connector.Error as err:
+        database.rollback()
+        return f"Error: {err}"
+    finally:
+        cursor.close()
+        database.close()
 
 
