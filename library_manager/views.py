@@ -1,5 +1,6 @@
 from django.shortcuts import render
-import database_functions
+from . import database_functions
+
 
 def add_member_view(request):
     if request.method == 'POST':
@@ -40,6 +41,22 @@ def authenticate_member_view(request):
         return render(request, 'authenticate_member_form.html')
 
 
+def update_member_view(request):
+    if request.method == 'POST':
+        card_number = request.POST.get('card_number')
+        f_name = request.POST.get('f_name')
+        l_name = request.POST.get('l_name')
+        address = request.POST.get('address')
+        dob = request.POST.get('dob')
+        email = request.POST.get('email')
+        phonenum = request.POST.get('phonenum')
+        checked_out_books = request.POST.get('checked_out_books')
+        late_charges = request.POST.get('late_charges')
+
+        result = database_functions.update_member(card_number, f_name, l_name, address, dob, email, phonenum, checked_out_books, late_charges)
+        return render(request, 'success.html', {'result': result})
+    else:
+        return render(request, 'update_member_form.html')
 def add_book_view(request):
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -61,6 +78,18 @@ def delete_book_view(request):
         return render(request, 'success.html', {'result': result})
     else:
         return render(request, 'delete_book_form.html')
+
+
+def update_book_view(request):
+    if request.method == 'POST':
+        isbn = request.POST.get('isbn')
+        branch_id = request.POST.get('branch_id')
+        num_copies = request.POST.get('num_copies')
+        num_availible = request.POST.get('num_availible')
+        result = database_functions.update_book(isbn, branch_id, num_copies, num_availible)
+        return render(request, 'success.html', {'result': result})
+    else:
+        return render(request, 'update_book_form.html')
 
 
 def process_borrow_view(request):
@@ -118,3 +147,37 @@ def delete_hold_view(request):
         return render(request, 'success.html', {'result': result})
     else:
         return render(request, 'delete_hold_form.html')
+
+
+def place_order_view(request):
+    if request.method == 'POST':
+        isbn = request.POST.get('isbn')
+        num_copies = request.POST.get('num_copies')
+        publisher = request.POST.get('publisher')
+        order_num = request.POST.get('order_num')
+        cost = request.POST.get('cost')
+        branch_num = request.POST.get('branch_num')
+        employee_num = request.POST.get('employee_num')
+
+        result = database_functions.place_order(isbn, num_copies, publisher, order_num, cost, branch_num, employee_num)
+        return render(request, 'success.html', {'result': result})
+    else:
+        return render(request, 'place_order_form.html')
+
+
+def cancel_order_view(request):
+    if request.method == 'POST':
+        order_num = request.POST.get('order_num')
+        result = database_functions.cancel_order(order_num)
+        return render(request, 'success.html', {'result': result})
+    else:
+        return render(request, 'cancel_order_form.html')
+
+
+def track_order_view(request):
+    if request.method == 'POST':
+        order_num = request.POST.get('order_num')
+        result = database_functions.track_order(order_num)
+        return render(request, 'success.html', {'result': result})
+    else:
+        return render(request, 'track_order_form.html')

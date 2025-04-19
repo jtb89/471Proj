@@ -50,6 +50,26 @@ def delete_user_member(card_number):
         )
         cursor = dataBase.cursor()
 
+        borrowed = """
+            SELECT COUNT(*)
+            FROM BORROW
+            WHERE card_number = %s AND date_in IS NULL
+        """
+        cursor.execute(borrowed, (card_number,))
+        row = cursor.fetchone()
+        if row[0] > 0:
+            return "Cannot delete member: They have borrowed books that are not returned."
+
+        lateCharges = """
+            SELECT late_charges
+            FROM MEMBER
+            WHERE card_number = %s
+        """
+        cursor.execute(lateCharges, (card_number,))
+        row = cursor.fetchone()
+        if row[0] > 0:
+            return "Cannot delete member: They have outstanding late charges."
+
         get_email_sql = """
             SELECT email
             FROM MEMBER
@@ -104,7 +124,40 @@ def authenticate_member(card_number, input_pin):
         cursor.close()
         dataBase.close()
 
-def add_book(title, genre, year_written, isbn, author_id=None):
+
+def update_member(card_number, f_name=None, l_name=None, address=None, dob=None, email=None, phonenum=None):
+    try:
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = dataBase.cursor()
+
+        update_sql = """
+        UPDATE USER
+        SET f_name = COALESCE(%s, f_name),
+            l_name = COALESCE(%s, l_name),
+            address = COALESCE(%s, address),
+            dob = COALESCE(%s, dob),
+            email = COALESCE(%s, email),
+            phonenum = COALESCE(%s, phonenum)
+        WHERE card_number = %s
+        """
+        cursor.execute(update_sql, (f_name, l_name, address, dob, email, phonenum, card_number))
+        dataBase.commit()
+        return "Member updated successfully"
+
+    except mysql.connector.Error as err:
+        dataBase.rollback()
+        return f"Error: {err}"
+    finally:
+        cursor.close()
+        dataBase.close()
+
+
+def add_book(title, genre, year_written, isbn, num_copies, num_availible, branch_id, author_id=None):
     try:
         dataBase = mysql.connector.connect(
             host="localhost",
@@ -126,6 +179,12 @@ def add_book(title, genre, year_written, isbn, author_id=None):
             VALUES (%s, %s)
             """
             cursor.execute(insert_wrote_sql, (isbn, author_id))
+
+        insert_owns_sql = """
+        INSERT INTO OWNS (isbn, branch_id, num_copies, num_availible)
+        VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(insert_owns_sql, (isbn, branch_id, num_copies, num_availible))
 
         dataBase.commit()
         return "Book added successfully"
@@ -170,6 +229,33 @@ def delete_book(isbn):
         cursor.close()
         dataBase.close()
 
+
+def update_book_inventory(isbn, branch_id, num_copies, num_availible):
+    try:
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = dataBase.cursor()
+        update_owns_sql = """
+        UPDATE OWNS
+        SET num_copies = %s, num_availible = %s
+        WHERE isbn = %s AND branch_id = %s
+        """
+        cursor.execute(update_owns_sql, (num_copies, num_availible, isbn, branch_id))
+        dataBase.commit()
+        return "Book inventory updated successfully"
+
+    except mysql.connector.Error as err:
+        dataBase.rollback()
+        return f"Error: {err}"
+    finally:
+        cursor.close()
+        dataBase.close()
+
+
 def process_borrow(card_number, isbn, date_out, date_due, branch_id):
     try:
         dataBase = mysql.connector.connect(
@@ -203,8 +289,8 @@ def process_borrow(card_number, isbn, date_out, date_due, branch_id):
 
         #Insert record into BORROW
         insert_borrow_sql = """
-        INSERT INTO BORROW (date_out, card_number, date_due, date_in)
-        VALUES (%s, %s, NULL, %s)
+        INSERT INTO BORROW (date_out, card_number, date_due, date_in, isbn)
+        VALUES (%s, %s, %s, NULL, %s)
         """
         cursor.execute(insert_borrow_sql, (date_out, card_number, date_out, date_due, isbn))
 
@@ -435,4 +521,84 @@ def delete_hold(hold_number=None, card_number=None, isbn=None):
         cursor.close()
         database.close()
 
+
+def place_order(isbn, num_copies, publisher, order_num, cost, branch_num, employee_num):
+    try:
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = dataBase.cursor()
+
+        order_sql = """
+        INSERT INTO ORDERS (isbn, num_copies, publisher, order_num, cost, branch_num, employee_num)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(order_sql, (isbn, num_copies, publisher, order_num, cost, branch_num, employee_num))
+        dataBase.commit()
+        return "Order placed successfully."
+
+    except mysql.connector.Error as err:
+        dataBase.rollback()
+        return f"Error: {err}"
+    finally:
+        cursor.close()
+        dataBase.close()
+
+
+def cancel_order(order_num):
+    try:
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = dataBase.cursor()
+
+        cancel_sql = """
+        DELETE FROM ORDERS
+        WHERE order_num = %s
+        """
+        cursor.execute(cancel_sql, (order_num,))
+        dataBase.commit()
+        return "Order canceled successfully."
+
+    except mysql.connector.Error as err:
+        dataBase.rollback()
+        return f"Error: {err}"
+    finally:
+        cursor.close()
+        dataBase.close()
+
+
+def track_order(order_num):
+    try:
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = dataBase.cursor()
+
+        track_sql = """
+        SELECT status
+        FROM ORDERS
+        WHERE order_num = %s
+        """
+        cursor.execute(track_sql, (order_num,))
+        status = cursor.fetchone()
+        if status:
+            return f"Order status: {status[0]}"
+        else:
+            return "Order not found."
+
+    except mysql.connector.Error as err:
+        return f"Error: {err}"
+    finally:
+        cursor.close()
+        dataBase.close()
 
