@@ -1,5 +1,8 @@
 from django.shortcuts import render
 from . import database_functions
+from django.views.decorators.csrf import csrf_exempt
+
+
 
 def add_member_view(request):
     if request.method == 'POST':
@@ -190,3 +193,11 @@ def get_books_view(request):
         return render(request, 'books_list.html', {'books': books_result["books"]})
     else:
         return render(request, 'error.html', {'error': books_result["error"]})
+
+def get_all_members(request):
+    members_result = database_functions.get_all_members()
+    if members_result["success"]:
+        return render(request, 'members_list.html', {'members': members_result["members"]})
+    else:
+        return render(request, 'error.html', {'error': members_result["error"]})
+

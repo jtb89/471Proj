@@ -56,6 +56,8 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
+CSRF_COOKIE_NAME = "csrftoken"  # Ensure this matches the cookie name for CSRF token
+
 
 ROOT_URLCONF = 'DjangoProject.urls'
 

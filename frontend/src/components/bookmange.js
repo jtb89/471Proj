@@ -19,13 +19,24 @@ const BookManagement = () => {
   
   // State for add book form
   const [openAddDialog, setOpenAddDialog] = useState(false);
+  // const [newBook, setNewBook] = useState({
+  //   title: '',
+  //   genre: '',
+  //   year_written: '',
+  //   isbn: '',
+  //   author_id: ''
+  // });
   const [newBook, setNewBook] = useState({
     title: '',
     genre: '',
     year_written: '',
     isbn: '',
-    author_id: ''
+    author_id: '',
+    branch_id: 1,
+    num_copies: 1,
+    num_availible: 1
   });
+  
   
   // State for notifications
   const [notification, setNotification] = useState({
@@ -84,7 +95,7 @@ const BookManagement = () => {
   // Handle add book
   const handleAddBook = async () => {
     try {
-      const response = await fetch('/database/api/books/add/', {
+      const response = await fetch('/database/api/add_book/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
