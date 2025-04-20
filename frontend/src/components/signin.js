@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -10,16 +11,19 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Container from '@mui/material/Container';
+import { useAuth } from './authcontext';
 
 export default function SignIn() {
   const [isEmployee, setIsEmployee] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const identifier = data.get("identifier");
     const password = data.get("password");
-  
+
     try {
       const response = await fetch("database/api/authenticate", {
         method: "POST",
@@ -32,11 +36,14 @@ export default function SignIn() {
           is_employee: isEmployee
         })
       });
-  
+
       const result = await response.json();
       if (response.ok && result.success) {
-        alert("Login successful!");
-        // redirect or save session info
+        // Only store identifier and is_employee
+        login({ identifier, is_employee: isEmployee });
+        
+        
+        navigate("/displayname");
       } else {
         alert(result.error || "Login failed.");
       }
@@ -45,7 +52,6 @@ export default function SignIn() {
       alert("An error occurred. Please try again.");
     }
   };
-  
 
   const toggleLoginType = () => {
     setIsEmployee((prev) => !prev);
@@ -69,7 +75,6 @@ export default function SignIn() {
             id="identifier"
             label={isEmployee ? 'Employee ID' : 'Card Number'}
             name="identifier"
-            autoComplete={isEmployee ? 'off' : 'off'}
             autoFocus
           />
           <TextField
@@ -77,7 +82,7 @@ export default function SignIn() {
             required
             fullWidth
             name="password"
-            label={isEmployee ? 'Password' : 'Password(pins)'}
+            label="Password"
             type="password"
             id="password"
             autoComplete="current-password"
@@ -107,6 +112,3 @@ export default function SignIn() {
     </Container>
   );
 }
-
-
-
