@@ -1,7 +1,4 @@
-// taken for https://github.com/mui-org/material-ui/blob/v3.x/docs/src/pages/getting-started/page-layout-examples/sign-in
-// so i can see how to use mui stuff
-
-import React from 'react';
+import React, { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -15,13 +12,43 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Container from '@mui/material/Container';
 
 export default function SignIn() {
-  const handleSubmit = (event) => {
+  const [isEmployee, setIsEmployee] = useState(false);
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const identifier = data.get("identifier");
+    const password = data.get("password");
+  
+    try {
+      const response = await fetch("database/api/authenticate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          identifier,
+          password,
+          is_employee: isEmployee
+        })
+      });
+  
+      const result = await response.json();
+      if (response.ok && result.success) {
+        alert("Login successful!");
+        // redirect or save session info
+      } else {
+        alert(result.error || "Login failed.");
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      alert("An error occurred. Please try again.");
+    }
+  };
+  
+
+  const toggleLoginType = () => {
+    setIsEmployee((prev) => !prev);
   };
 
   return (
@@ -32,17 +59,17 @@ export default function SignIn() {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign in
+          {isEmployee ? 'Employee Login' : 'User Login'}
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required
             fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
+            id="identifier"
+            label={isEmployee ? 'Employee ID' : 'Card Number'}
+            name="identifier"
+            autoComplete={isEmployee ? 'off' : 'off'}
             autoFocus
           />
           <TextField
@@ -50,7 +77,7 @@ export default function SignIn() {
             required
             fullWidth
             name="password"
-            label="Password"
+            label={isEmployee ? 'Password' : 'Password(pins)'}
             type="password"
             id="password"
             autoComplete="current-password"
@@ -67,8 +94,19 @@ export default function SignIn() {
           >
             Sign In
           </Button>
+          <Button
+            fullWidth
+            variant="text"
+            sx={{ mt: 1 }}
+            onClick={toggleLoginType}
+          >
+            Switch to {isEmployee ? 'User' : 'Employee'} Login
+          </Button>
         </Box>
       </Paper>
     </Container>
   );
 }
+
+
+

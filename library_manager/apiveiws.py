@@ -116,3 +116,28 @@ def add_member_api(request):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "POST request required"}, status=405)
+
+## log in
+@csrf_exempt
+def authenticate_api(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            identifier = data.get("identifier")
+            password = data.get("password")
+            is_employee = data.get("is_employee", False)
+
+            if is_employee:
+                success = database_functions.authenticate_employee(identifier, password)
+            else:
+                success = database_functions.authenticate_member(identifier, password)
+
+            if success:
+                return JsonResponse({"success": True})
+            else:
+                return JsonResponse({"success": False, "error": "Invalid credentials"}, status=401)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "POST required"}, status=405)

@@ -53,26 +53,7 @@ const About = () => {
         }
     };
 
-    const fetchMembers = async () => {
-        setLoading(true);
-        try {
-            const response = await fetch('/database/api/get_members');
-            if (!response.ok) {
-                throw new Error('Failed to fetch members');
-              }
-              const data = await response.json();
-              setMembers(data.members);
-              setError(null);
-            } catch (err) {
-              setError(err.message);
-              showNotification(err.message, 'error');
-            } finally {
-              setLoading(false);
-            }
-          };
-        }
     
-
     return (
         <div>
             <h2>Add Member</h2>
@@ -169,11 +150,7 @@ const About = () => {
             </form>
 
             {message && <p>{message}</p>}
-        <Container maxWidth="lg">
-            
-        </Container>
         </div>
-        
     );
 };
 
