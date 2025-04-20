@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS BORROW(
     date_out INT NOT NULL,
     card_number INT NOT NULL,
     date_due DATE NOT NULL,
-    date_in DATE NOT NULL,
+    date_in DATE,
     isbn INT NOT NULL,
     PRIMARY KEY(card_number),
     CONSTRAINT fk_BORROW_MEMBER
