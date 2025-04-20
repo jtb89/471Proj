@@ -149,6 +149,36 @@ def authenticate_member(card_number, input_pin):
         dataBase.close()
 
 
+def authenticate_employee(employee_id, password):
+    try:
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = dataBase.cursor()
+
+        get_password = """
+        SELECT password FROM EMPLOYEE
+        WHERE employee_id = %s
+        """
+        cursor.execute(get_password, (employee_id,))
+        result = cursor.fetchone()
+
+        if result and str(result[0] == str(password)):
+            return True
+        else:
+            return False
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return False
+    finally:
+        cursor.close()
+        dataBase.close()
+
+
 def update_member(card_number, f_name=None, l_name=None, address=None, dob=None, email=None, phonenum=None):
     try:
         dataBase = mysql.connector.connect(
