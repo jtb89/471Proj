@@ -11,6 +11,8 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Container from '@mui/material/Container';
+import { Link } from 'react-router-dom';
+
 import { useAuth } from './authcontext';
 
 export default function SignIn() {
@@ -107,6 +109,15 @@ export default function SignIn() {
           >
             Switch to {isEmployee ? 'User' : 'Employee'} Login
           </Button>
+          <Button
+          fullWidth
+          variant="text"
+          sx={{ mt: 1 }}
+          component={Link}
+          to="/makeaccount"
+        >
+          Make new account
+        </Button>
         </Box>
       </Paper>
     </Container>

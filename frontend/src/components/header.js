@@ -155,6 +155,15 @@ export default function Header() {
               >
                 Add Book
               </Button>
+              <Button
+                color="inherit"
+                component={Link}
+                to="/orderbook"
+                sx={{ mx: 1, color: "black" }}
+              >
+                Order Book
+              </Button>
+
             </>
           )}
 

@@ -8,6 +8,9 @@ import Signin from "./signin";
 import BookManagement from "./bookmange";
 import Addbook from "./addbook";
 import DisplayName from "./displayname";
+import Order from "./orderbook";
+import Makeaccount from "./makeaccount";
+
 import { AuthProvider } from "./authcontext";
 
 
@@ -31,6 +34,10 @@ const App = () => {
     <Route path="/bookmange" element={<BookManagement />} />
     <Route path="/addbook" element={<Addbook />} />
     <Route path="/displayname" element={<DisplayName />} />
+    <Route path="/order" element={<Order />} />
+    <Route path="/makeaccount" element={<Makeaccount />} />
+
+
     </Routes>
     </BrowserRouter>
     </AuthProvider>
