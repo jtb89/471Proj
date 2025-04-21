@@ -149,7 +149,36 @@ def authenticate_member(card_number, input_pin):
         dataBase.close()
 
 
-def authenticate_employee(employee_id, password):
+# def authenticate_employee(employee_id, password):
+#     try:
+#         dataBase = mysql.connector.connect(
+#             host="localhost",
+#             user="root",
+#             passwd="471ProjServer",
+#             database="library_db"
+#         )
+#         cursor = dataBase.cursor()
+
+#         get_password = """
+#         SELECT password FROM EMPLOYEE
+#         WHERE employee_id = %s
+#         """
+#         cursor.execute(get_password, (employee_id,))
+#         result = cursor.fetchone()
+
+#         if result and str(result[0]) == str(password):
+#             return True
+#         else:
+#             return False
+
+#     except mysql.connector.Error as err:
+#         print(f"Error: {err}")
+#         return False
+#     finally:
+#         cursor.close()
+#         dataBase.close()
+
+def authenticate_employee(employee_num, password):
     try:
         dataBase = mysql.connector.connect(
             host="localhost",
@@ -159,17 +188,13 @@ def authenticate_employee(employee_id, password):
         )
         cursor = dataBase.cursor()
 
-        get_password = """
-        SELECT password FROM EMPLOYEE
-        WHERE employee_id = %s
-        """
-        cursor.execute(get_password, (employee_id,))
+        cursor.execute("SELECT password FROM EMPLOYEE WHERE employee_num = %s", (employee_num,))
         result = cursor.fetchone()
 
-        if result and str(result[0] == str(password)):
-            return True
-        else:
-            return False
+        if result:
+            db_password = str(result[0]).strip()
+            return db_password == str(password).strip()
+        return False
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
@@ -177,7 +202,6 @@ def authenticate_employee(employee_id, password):
     finally:
         cursor.close()
         dataBase.close()
-
 
 def update_member(card_number, f_name=None, l_name=None, address=None, dob=None, email=None, phonenum=None):
     try:
