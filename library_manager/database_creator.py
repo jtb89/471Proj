@@ -124,12 +124,12 @@ cursor.execute(member)
 
 borrows = """ 
 CREATE TABLE IF NOT EXISTS BORROW(
-    date_out INT NOT NULL,
+    date_out Date NOT NULL,
     card_number INT NOT NULL,
     date_due DATE NOT NULL,
     date_in DATE,
     isbn INT NOT NULL,
-    PRIMARY KEY(card_number),
+    PRIMARY KEY(card_number, isbn),     # fixes the one primary key issue of only being able to bororw one book
     CONSTRAINT fk_BORROW_MEMBER
         FOREIGN KEY (card_number) REFERENCES MEMBER(card_number)
         ON UPDATE CASCADE ON DELETE CASCADE,
@@ -145,7 +145,7 @@ CREATE TABLE IF NOT EXISTS HOLDS(
     isbn INT NOT NULL,
     card_number INT NOT NULL,
     hold_number INT NOT NULL,
-    PRIMARY KEY(card_number),
+    PRIMARY KEY(card_number, isbn), # fixes the one primary key issue of only being able to put a hold one book
     CONSTRAINT fk_HOLDS_MEMBER
         FOREIGN KEY (card_number) REFERENCES MEMBER(card_number)
         ON UPDATE CASCADE ON DELETE CASCADE,
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS OWNS(
     num_availible INT NOT NULL,
     num_copies INT NOT NULL,
     branch_id INT NOT NULL,
-    PRIMARY KEY(isbn),
+    PRIMARY KEY(isbn, branch_id), # fixes the one primary key issue of only one branch being able to own a book
     CONSTRAINT fk_OWNS_BOOK
         FOREIGN KEY (isbn) REFERENCES BOOK(isbn)
         ON UPDATE CASCADE ON DELETE CASCADE,

@@ -1,6 +1,8 @@
 import mysql.connector
 from datetime import date
 
+from django.db.models.sql.constants import CURSOR
+
 dataBase = mysql.connector.connect(
     host="localhost",
     user="root",
@@ -8,7 +10,32 @@ dataBase = mysql.connector.connect(
     database="library_db"
 )
 cursor = dataBase.cursor()
+patch_keys = """
+SET FOREIGN_KEY_CHECKS = 0;
 
+ALTER TABLE BORROW 
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (card_number, isbn);
+
+ALTER TABLE HOLDS 
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (card_number, isbn);
+
+ALTER TABLE OWNS 
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (isbn, branch_id);
+
+SET FOREIGN_KEY_CHECKS = 1
+"""
+
+for stmt in filter(None, map(str.strip, patch_keys.split(";"))):
+    cursor.execute(stmt)
+print("primary keys patched")
+
+# Allow NULL in BORROW.date_in changed in database_creator
+cursor.execute("ALTER TABLE BORROW MODIFY COLUMN date_in DATE NULL")
+# Set date_out to be a date not an int changed in database_creator
+cursor.execute("ALTER TABLE BORROW MODIFY COLUMN date_out DATE NOT NULL")
 # Add branches
 branches = [
     (3, "Central Library", "123 Library St"),
@@ -63,8 +90,6 @@ cursor.executemany("INSERT INTO MEMBER (checked_out_books, late_charges, card_nu
 cursor.execute("INSERT INTO EMPLOYEE (authorization_level, password, salary, ssn, employee_num, email) VALUES (%s, %s, %s, %s, %s, %s)",
                (1, "secret", 50000, "11122333", 500, "carol@example.com"))
 
-# Allow NULL in BORROW.date_in
-cursor.execute("ALTER TABLE BORROW MODIFY COLUMN date_in DATE NULL")
 
 # Add ownership entries
 own = [

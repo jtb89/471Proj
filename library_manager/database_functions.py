@@ -670,11 +670,11 @@ def create_hold(card_number, isbn, branch_id):
         hold_count = cursor.fetchone()[0]
 
         next_queue_position = hold_count + 1
-        instert_hold_sql = """
+        insert_hold_sql = """
         INSERT INTO HOLDS (queue_position, isbn, card_number, branch_id)
             VALUES (%s, %s, %s, %s)
         """
-        cursor.execute(instert_hold_sql, (next_queue_position, isbn, card_number, branch_id))
+        cursor.execute(insert_hold_sql, (next_queue_position, isbn, card_number, branch_id))
         database.commit()
         return f"Hold created successfully. You are position #{next_queue_position} in the queue."
 
