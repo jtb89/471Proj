@@ -141,3 +141,29 @@ def authenticate_api(request):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "POST required"}, status=405)
+
+@csrf_exempt
+def delete_book_api(request):
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            isbn = body.get('isbn')
+
+            if not isbn:
+                return JsonResponse({"error": "ISBN is required"}, status=400)
+
+            result = database_functions.delete_book(isbn)
+
+            if result["success"]:
+                return JsonResponse({"message": result["message"]})
+            else:
+                return JsonResponse({"error": result["error"]}, status=400)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+        except Exception as e:
+            print("Error in delete_book_api:", str(e))
+            return JsonResponse({"error": str(e)}, status=500)
+
+    else:
+        return JsonResponse({"error": "Only POST method is allowed"}, status=405)

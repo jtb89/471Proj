@@ -404,6 +404,39 @@ def add_book(title, genre, year_written, isbn, author_id=None,
 
 
 
+# def delete_book(isbn):
+#     try:
+#         dataBase = mysql.connector.connect(
+#             host="localhost",
+#             user="root",
+#             passwd="471ProjServer",
+#             database="library_db"
+#         )
+#         cursor = dataBase.cursor()
+
+#         check_borrow_sql = """
+#         SELECT COUNT(*) FROM BOOK
+#         WHERE isbn = %s AND date_in IS NULL
+#         """
+#         cursor.execute(check_borrow_sql, (isbn,))
+#         borrowed_count = cursor.fetchone()
+
+#         if borrowed_count and borrowed_count[0] > 0:
+#             return "Cannot delete book: It is currently borrowed"
+
+#         delete_book_sql = "DELETE FROM BOOK WHERE isbn = %s"
+#         cursor.execute(delete_book_sql, (isbn,))
+
+#         dataBase.commit()
+#         return "Book deleted successfully"
+
+#     except mysql.connector.Error as err:
+#         dataBase.rollback()
+#         return f"Error: {err}"
+#     finally:
+#         cursor.close()
+#         dataBase.close()
+
 def delete_book(isbn):
     try:
         dataBase = mysql.connector.connect(
@@ -415,27 +448,29 @@ def delete_book(isbn):
         cursor = dataBase.cursor()
 
         check_borrow_sql = """
-        SELECT COUNT(*) FROM BOOK
+        SELECT COUNT(*) FROM BORROW
         WHERE isbn = %s AND date_in IS NULL
         """
         cursor.execute(check_borrow_sql, (isbn,))
         borrowed_count = cursor.fetchone()
 
         if borrowed_count and borrowed_count[0] > 0:
-            return "Cannot delete book: It is currently borrowed"
+            return {"success": False, "error": "Cannot delete book: It is currently borrowed"}
 
         delete_book_sql = "DELETE FROM BOOK WHERE isbn = %s"
         cursor.execute(delete_book_sql, (isbn,))
 
         dataBase.commit()
-        return "Book deleted successfully"
+        return {"success": True, "message": "Book deleted successfully"}
 
     except mysql.connector.Error as err:
         dataBase.rollback()
-        return f"Error: {err}"
+        return {"success": False, "error": f"Error: {err}"}
+
     finally:
         cursor.close()
         dataBase.close()
+
 
 
 def update_book_inventory(isbn, branch_id, num_copies, num_availible):

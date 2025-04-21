@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/add_book/', apiveiws.add_book_api, name='add_book_api'),
     path('api/add-member/', apiveiws.add_member_api, name='add_member_api'),
     path('api/get_members', apiveiws.get_members_api, name='get_members_api' ),
-    path('api/authenticate', apiveiws.authenticate_api, name='authenticate_users_api')
+    path('api/authenticate', apiveiws.authenticate_api, name='authenticate_users_api'),
+    path('api/delete_book', apiveiws.delete_book_api, name='delete_book_api')
 
-]
+] 
