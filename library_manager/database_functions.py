@@ -814,8 +814,33 @@ def get_all_books():
         
         return {"success": True, "books": books}
     except mysql.connector.Error as err:
-        print("Database error in get_all_books():", err)  # <-- ADD THIS
+        print("Database error in get_all_books():", err)  
         return {"success": False, "error": str(err)}
+
+# def place_order(isbn, num_copies, publisher, order_num, cost, branch_num, employee_num):
+#     try:
+#         dataBase = mysql.connector.connect(
+#             host="localhost",
+#             user="root",
+#             passwd="471ProjServer",
+#             database="library_db"
+#         )
+#         cursor = dataBase.cursor()
+
+#         order_sql = """
+#         INSERT INTO ORDERS (isbn, num_copies, publisher, order_num, cost, branch_num, employee_num)
+#         VALUES (%s, %s, %s, %s, %s, %s, %s)
+#         """
+#         cursor.execute(order_sql, (isbn, num_copies, publisher, order_num, cost, branch_num, employee_num))
+#         dataBase.commit()
+#         return "Order placed successfully."
+
+#     except mysql.connector.Error as err:
+#         dataBase.rollback()
+#         return f"Error: {err}"
+#     finally:
+#         cursor.close()
+#         dataBase.close()
 
 def place_order(isbn, num_copies, publisher, order_num, cost, branch_num, employee_num):
     try:
@@ -826,6 +851,11 @@ def place_order(isbn, num_copies, publisher, order_num, cost, branch_num, employ
             database="library_db"
         )
         cursor = dataBase.cursor()
+
+        # Check if publisher exists
+        cursor.execute("SELECT 1 FROM PUBLISHER WHERE publisher_name = %s", (publisher,))
+        if cursor.fetchone() is None:
+            return f"Error: Publisher '{publisher}' does not exist in the database."
 
         order_sql = """
         INSERT INTO ORDERS (isbn, num_copies, publisher, order_num, cost, branch_num, employee_num)
@@ -841,6 +871,7 @@ def place_order(isbn, num_copies, publisher, order_num, cost, branch_num, employ
     finally:
         cursor.close()
         dataBase.close()
+
 
 
 def cancel_order(order_num):
@@ -897,3 +928,134 @@ def track_order(order_num):
         cursor.close()
         dataBase.close()
 
+
+# def get_all_orders():
+#     try:
+#         dataBase = mysql.connector.connect(
+#             host="localhost",
+#             user="root",
+#             passwd="471ProjServer",
+#             database="library_db"
+#         )
+#         cursor = dataBase.cursor(dictionary=True)
+
+#         query = "SELECT * FROM ORDERS"
+#         cursor.execute(query)
+#         orders = cursor.fetchall()
+
+#         return orders  # Returns a list of dictionaries
+
+#     except mysql.connector.Error as err:
+#         return f"Error: {err}"
+#     finally:
+#         cursor.close()
+#         dataBase.close()
+
+def get_all_orders():
+    try:
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = dataBase.cursor(dictionary=True)
+
+        # Query to retrieve all relevant columns
+        query = """
+        SELECT
+            o.order_num,
+            o.isbn,
+            o.num_copies,
+            o.publisher,
+            o.cost,
+            o.employee_num,
+            b.branch_id,
+            p.publisher_name,
+            e.employee_num
+        FROM ORDERS o
+        LEFT JOIN BRANCH b ON o.branch_num = b.branch_id
+        LEFT JOIN PUBLISHER p ON o.publisher = p.publisher_name
+        LEFT JOIN EMPLOYEE e ON o.employee_num = e.employee_num
+        """
+        cursor.execute(query)
+        orders = cursor.fetchall()
+
+        return orders  # Returns a list of dictionaries
+
+    except mysql.connector.Error as err:
+        return f"Error: {err}"
+    finally:
+        cursor.close()
+        dataBase.close()
+
+
+# def get_books_with_branch_and_author():
+#     try:
+#         dataBase = mysql.connector.connect(
+#             host="localhost",
+#             user="root",
+#             passwd="471ProjServer",
+#             database="library_db"
+#         )
+#         cursor = dataBase.cursor(dictionary=True)
+
+#         query = """
+#         SELECT 
+#             B.title,
+#             B.isbn,
+#             OW.branch_id,
+#             A.author_f_name,
+#             A.author_l_name
+#         FROM BOOK B
+#         JOIN OWNS OW ON B.isbn = OW.isbn
+#         JOIN WROTE W ON B.isbn = W.isbn
+#         JOIN AUTHOR A ON W.author_id = A.author_id
+#         ORDER BY B.isbn, OW.branch_id
+#         """
+#         cursor.execute(query)
+#         result = cursor.fetchall()
+#         return {"success": True, "books": result}
+
+#     except mysql.connector.Error as err:
+#         return {"success": False, "error": str(err)}
+#     finally:
+#         cursor.close()
+#         dataBase.close()
+
+def get_books_with_branch_and_author():
+    try:
+        connection = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="471ProjServer",
+            database="library_db"
+        )
+
+        cursor = connection.cursor(dictionary=True)
+        
+        # Join BOOK with WROTE (for author_id) and OWNS (for num_availible)
+        query = """
+            SELECT 
+                B.isbn,
+                B.title,
+                B.genre,
+                B.year_written,
+                W.author_id,
+                IFNULL(SUM(O.num_availible), 0) AS total_available
+            FROM BOOK B
+            LEFT JOIN WROTE W ON B.isbn = W.isbn
+            LEFT JOIN OWNS O ON B.isbn = O.isbn
+            GROUP BY B.isbn, W.author_id
+        """
+        cursor.execute(query)
+
+        books = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return {"success": True, "books": books}
+    except mysql.connector.Error as err:
+        print("Database error in get_all_books():", err)
+        return {"success": False, "error": str(err)}

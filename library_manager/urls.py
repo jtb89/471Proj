@@ -27,6 +27,11 @@ urlpatterns = [
     path('api/add-member/', apiveiws.add_member_api, name='add_member_api'),
     path('api/get_members', apiveiws.get_members_api, name='get_members_api' ),
     path('api/authenticate', apiveiws.authenticate_api, name='authenticate_users_api'),
-    path('api/delete_book', apiveiws.delete_book_api, name='delete_book_api')
+    path('api/delete_book', apiveiws.delete_book_api, name='delete_book_api'),
+    path('api/track_order', apiveiws.track_order_api, name='track_order_api'),
+    path('api/update_book_inventory', apiveiws.update_book_inventory_api, name='update_book_inventory_api'),
+    path('api/get_all_books_full', apiveiws.get_books_with_branch_and_author_api, name='get_books_with_branch_and_author_api'),
+    path('api/get_all_orders', apiveiws.get_orders_api, name='get_orders_api'),
+    path('api/place_order', apiveiws.place_order_api, name='place_order_api'),
 
 ] 
