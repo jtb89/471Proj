@@ -208,6 +208,35 @@ def update_member(card_number, f_name=None, l_name=None, address=None, dob=None,
         dataBase.close()
 
 
+def get_default_author_id(cursor) -> int:
+    """
+    Return the author_id of the row whose author_f_name = '0'.
+    Assumes exactly one such 'default author' row exists.
+    """
+    cursor.execute(
+        "SELECT author_id FROM AUTHOR WHERE author_f_name = '0' LIMIT 1"
+    )
+    row = cursor.fetchone()
+    if row is None:
+        raise ValueError("Default author (author_f_name = '0') not found.")
+    return row[0]
+
+
+def safe_author_id(cursor, author_id: int | None) -> int:
+    """
+    • If `author_id` refers to an existing AUTHOR row, use it.
+    • Otherwise fall back to the special row where author_f_name = '0'.
+    """
+    if author_id is not None:
+        cursor.execute(
+            "SELECT 1 FROM AUTHOR WHERE author_id = %s LIMIT 1",
+            (author_id,),
+        )
+        if cursor.fetchone():
+            return author_id          # it exists
+
+    # need the fallback
+    return get_default_author_id(cursor)
 
 
 def add_book(title, genre, year_written, isbn, author_id=None, branch_id=1, num_copies=1, num_available=1):
@@ -219,13 +248,22 @@ def add_book(title, genre, year_written, isbn, author_id=None, branch_id=1, num_
             database="library_db"
         )
         cursor = dataBase.cursor()
-        
+
+        real_author_id = safe_author_id(cursor, author_id)
+
         # Insert into BOOK - no author_id column in BOOK table
         insert_book_sql = """
         INSERT INTO BOOK (title, genre, year_written, isbn)
         VALUES (%s, %s, %s, %s)
         """
         cursor.execute(insert_book_sql, (title, genre, year_written, isbn))
+
+        # Insert into OWNS - using the correct column name 'num_availible'
+        insert_owns_sql = """
+        INSERT INTO OWNS (isbn, branch_id, num_copies, num_availible)
+        VALUES (%s, %s, %s, %s) 
+        """
+        cursor.execute(insert_owns_sql, (isbn, branch_id, num_copies, num_available))
         
         # If author_id is provided, create the relationship in WROTE table
         if author_id is not None:
@@ -233,15 +271,8 @@ def add_book(title, genre, year_written, isbn, author_id=None, branch_id=1, num_
             INSERT INTO WROTE (isbn, author_id)
             VALUES (%s, %s)
             """
-            cursor.execute(insert_wrote_sql, (isbn, author_id))
-        
-        # Insert into OWNS - using the correct column name 'num_availible'
-        insert_owns_sql = """
-        INSERT INTO OWNS (isbn, branch_id, num_copies, num_availible)
-        VALUES (%s, %s, %s, %s)
-        """
-        cursor.execute(insert_owns_sql, (isbn, branch_id, num_copies, num_available))
-        
+            cursor.execute(insert_wrote_sql, (isbn, real_author_id))
+
         dataBase.commit()
         return "Book successfully added"
     except mysql.connector.Error as err:

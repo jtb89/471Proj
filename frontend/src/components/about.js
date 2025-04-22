@@ -53,7 +53,7 @@ const About = () => {
         }
     };
 
-    
+
     return (
         <div>
             <h2>Add Member</h2>

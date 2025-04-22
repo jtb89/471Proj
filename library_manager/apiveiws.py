@@ -101,7 +101,7 @@ def add_book_api(request):
         genre = data.get('genre')
         year_written = data.get('year_written')
         
-        author_id = data.get('author_id')
+        author_id = data.get('real_author_id')
         branch_id = data.get('branch_id', 1)
         num_copies = data.get('num_copies', 1)
         num_available = data.get('num_available', num_copies)  # Default to num_copies if not provided

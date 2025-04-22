@@ -52,6 +52,8 @@ publisher = [
 cursor.executemany("INSERT INTO PUBLISHER (publisher_name, address, phone_number) VALUES (%s, %s, %s)", publisher)
 
 # Add authors
+default_author = ("0", "0", "0", "0", 0)
+cursor.execute("INSERT INTO AUTHOR (author_f_name, author_l_name, biography, catalog, author_id) VALUES (%s, %s, %s, %s, %s)", default_author)
 authors = [
     ("George", "Orwell", "English novelist", "Fiction"),
     ("Harper", "Lee", "American novelist", "Fiction")
@@ -61,8 +63,9 @@ for a in authors:
     cursor.execute("INSERT INTO AUTHOR (author_f_name, author_l_name, biography, catalog) VALUES (%s, %s, %s, %s)", a)
     author_id.append(cursor.lastrowid)
 
+
 # Add books
-books = [
+    books = [
     (1001, "1984", "Dystopian", 1949),
     (1002, "To Kill a Mockingbird", "Southern Gothic", 1960)
 ]
