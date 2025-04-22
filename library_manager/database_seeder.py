@@ -10,7 +10,7 @@ dataBase = mysql.connector.connect(
     database="library_db"
 )
 cursor = dataBase.cursor()
-patch_keys = """
+'''patch_keys = """
 SET FOREIGN_KEY_CHECKS = 0;
 
 ALTER TABLE BORROW 
@@ -35,7 +35,7 @@ print("primary keys patched")
 # Allow NULL in BORROW.date_in changed in database_creator
 cursor.execute("ALTER TABLE BORROW MODIFY COLUMN date_in DATE NULL")
 # Set date_out to be a date not an int changed in database_creator
-cursor.execute("ALTER TABLE BORROW MODIFY COLUMN date_out DATE NOT NULL")
+cursor.execute("ALTER TABLE BORROW MODIFY COLUMN date_out DATE NOT NULL")'''
 # Add branches
 branches = [
     (3, "Central Library", "123 Library St"),
