@@ -3,6 +3,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from . import database_functions
 from django.db import connection
+import mysql.connector
 
 
 @csrf_exempt
@@ -292,20 +293,51 @@ def update_book_inventory_api(request):
         return JsonResponse({"error": "Only POST method is allowed"}, status=405)
 
 
+# @csrf_exempt
+# def get_books_with_branch_and_author_api(request):
+#     try:
+#         books_result = database_functions.get_books_with_branch_and_author()
+#         print("Books result:", books_result)  # Debug print
+#         if books_result["success"]:
+#             return JsonResponse({"books": books_result["books"]})
+#         else:
+#             return JsonResponse({"error": books_result["error"]}, status=500)
+#     except Exception as e:
+#         print("Error in get_books_api:", str(e))  # This will show the real issue
+#         return JsonResponse({"error": str(e)}, status=500)
+
 @csrf_exempt
-def get_books_with_branch_and_author_api(request):
-    try:
-        books_result = database_functions.get_books_with_branch_and_author()
-        print("Books result:", books_result)  # Debug print
-        if books_result["success"]:
-            return JsonResponse({"books": books_result["books"]})
-        else:
-            return JsonResponse({"error": books_result["error"]}, status=500)
-    except Exception as e:
-        print("Error in get_books_api:", str(e))  # This will show the real issue
-        return JsonResponse({"error": str(e)}, status=500)
+def get_books_full_api(request):
+    if request.method == 'GET':
+        try:
+            # Call the helper function from database_functions
+            books_result = database_functions.get_books_full()
+            print("Books result:", books_result)  # Debug print for development
 
-
+            # Check for successful result
+            if books_result.get("success"):
+                return JsonResponse({
+                    "status": "success",
+                    "books": books_result["books"]
+                }, status=200)
+            else:
+                return JsonResponse({
+                    "status": "error",
+                    "message": books_result.get("error", "Unknown error occurred")
+                }, status=500)
+        
+        except Exception as e:
+            print("Error in get_books_full_api:", str(e))  # Log the error
+            return JsonResponse({
+                "status": "error",
+                "message": str(e)
+            }, status=500)
+    
+    else:
+        return JsonResponse({
+            "status": "error",
+            "message": "Only GET requests are allowed."
+        }, status=405)
 
 
 @csrf_exempt

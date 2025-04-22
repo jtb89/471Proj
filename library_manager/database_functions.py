@@ -910,39 +910,42 @@ def get_all_orders():
 #         cursor.close()
 #         dataBase.close()
 
-def get_books_with_branch_and_author():
+def get_books_full():
     try:
-        connection = mysql.connector.connect(
+        dataBase = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="471ProjServer",
+            passwd="471ProjServer",
             database="library_db"
         )
+        cursor = dataBase.cursor(dictionary=True)
 
-        cursor = connection.cursor(dictionary=True)
-        
-        # Join BOOK with WROTE (for author_id) and OWNS (for num_availible)
         query = """
             SELECT 
                 B.isbn,
                 B.title,
                 B.genre,
                 B.year_written,
-                W.author_id,
-                IFNULL(SUM(O.num_availible), 0) AS total_available
+                CONCAT(A.author_f_name, ' ', A.author_l_name) AS author_name,
+                BR.branch_id,
+                BR.branch_name,
+                O.num_availible AS total_available
             FROM BOOK B
             LEFT JOIN WROTE W ON B.isbn = W.isbn
+            LEFT JOIN AUTHOR A ON W.author_id = A.author_id
             LEFT JOIN OWNS O ON B.isbn = O.isbn
-            GROUP BY B.isbn, W.author_id
+            LEFT JOIN BRANCH BR ON O.branch_id = BR.branch_id;
         """
+        
         cursor.execute(query)
+        rows = cursor.fetchall()
+        
+        return {"success": True, "books": rows}
 
-        books = cursor.fetchall()
-
-        cursor.close()
-        connection.close()
-
-        return {"success": True, "books": books}
     except mysql.connector.Error as err:
-        print("Database error in get_all_books():", err)
         return {"success": False, "error": str(err)}
+    finally:
+        if 'cursor' in locals() and cursor:
+            cursor.close()
+        if 'dataBase' in locals() and dataBase:
+            dataBase.close()

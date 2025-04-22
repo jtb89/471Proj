@@ -45,9 +45,10 @@ const Addbook = () => {
   const fetchBooks = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/database/api/get_all_books_full");
+      const response = await fetch("/database/api/get_books_full");
       if (!response.ok) throw new Error("Failed to fetch books");
       const data = await response.json();
+      console.log("Books data:", data); // Debug: Check the actual data structure
       setBooks(data.books || []);
       setError(null);
     } catch (err) {
@@ -257,28 +258,30 @@ const Addbook = () => {
                     <TableCell>ISBN</TableCell>
                     <TableCell>Title</TableCell>
                     <TableCell>Genre</TableCell>
-                    <TableCell>Year</TableCell>
+                    <TableCell>Year Written</TableCell>
                     <TableCell>Author</TableCell>
-                    <TableCell>Branch</TableCell>
-                    <TableCell>Copies</TableCell>
+                    <TableCell>Branch ID</TableCell>
+                    <TableCell>Branch Name</TableCell>
+                    <TableCell>Available Copies</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {books.length > 0 ? (
-                    books.map((book) => (
-                      <TableRow key={book.isbn}>
+                    books.map((book, index) => (
+                      <TableRow key={`${book.isbn}-${book.branch_id || 'null'}-${index}`}>
                         <TableCell>{book.isbn}</TableCell>
                         <TableCell>{book.title}</TableCell>
                         <TableCell>{book.genre}</TableCell>
                         <TableCell>{book.year_written}</TableCell>
                         <TableCell>{book.author_name || "N/A"}</TableCell>
+                        <TableCell>{book.branch_id || "N/A"}</TableCell>
                         <TableCell>{book.branch_name || "N/A"}</TableCell>
-                        <TableCell>{book.num_copies}</TableCell>
+                        <TableCell>{book.total_available || book.num_availible || 0}</TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={7} align="center">
+                      <TableCell colSpan={8} align="center">
                         No books found
                       </TableCell>
                     </TableRow>
