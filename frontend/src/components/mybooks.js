@@ -59,6 +59,7 @@ const Mybooks = () => {
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
+                  <TableCell>ISBN</TableCell>
                   <TableCell>Title</TableCell>
                   <TableCell>Date Out</TableCell>
                   <TableCell>Date Due</TableCell>
@@ -68,7 +69,8 @@ const Mybooks = () => {
               <TableBody>
                 {books.length > 0 ? (
                   books.map((book, index) => (
-                    <TableRow key={`${book.title}-${index}`}>
+                    <TableRow key={`${book.isbn}-${index}`}>
+                      <TableCell>{book.isbn}</TableCell>
                       <TableCell>{book.title}</TableCell>
                       <TableCell>{book.date_out || "N/A"}</TableCell>
                       <TableCell>{book.date_due || "N/A"}</TableCell>
@@ -77,7 +79,7 @@ const Mybooks = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} align="center">
+                    <TableCell colSpan={5} align="center">
                       No borrowed books found
                     </TableCell>
                   </TableRow>
