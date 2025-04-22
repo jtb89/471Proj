@@ -10,7 +10,7 @@ dataBase = mysql.connector.connect(
     database="library_db"
 )
 cursor = dataBase.cursor()
-patch_keys = """
+'''patch_keys = """
 SET FOREIGN_KEY_CHECKS = 0;
 
 ALTER TABLE BORROW 
@@ -35,7 +35,7 @@ print("primary keys patched")
 # Allow NULL in BORROW.date_in changed in database_creator
 cursor.execute("ALTER TABLE BORROW MODIFY COLUMN date_in DATE NULL")
 # Set date_out to be a date not an int changed in database_creator
-cursor.execute("ALTER TABLE BORROW MODIFY COLUMN date_out DATE NOT NULL")
+cursor.execute("ALTER TABLE BORROW MODIFY COLUMN date_out DATE NOT NULL")'''
 # Add branches
 branches = [
     (3, "Central Library", "123 Library St"),
@@ -103,11 +103,11 @@ cursor.executemany("INSERT INTO OWNS (isbn, num_availible, num_copies, branch_id
 
 # Add borrow record
 cursor.execute("INSERT INTO BORROW (date_out, card_number, date_due, date_in, isbn) VALUES (%s, %s, %s, %s, %s)",
-               (date(2024, 2, 1), 1234, date(2024, 2, 15), None, 1001, 1))
+               (date(2024, 2, 1), 1234, date(2024, 2, 15), None, 1001))
 
 # Add hold
 cursor.execute("INSERT INTO HOLDS (queue_possition, isbn, card_number, hold_number, branch_id) VALUES (%s, %s, %s, %s, %s)",
-               (1, 1002, 1234, 9001))
+               (1, 1002, 1234, 9001,1))
 
 # Add order
 cursor.execute("INSERT INTO ORDERS (isbn, num_copies, publisher, order_num, cost, branch_num, employee_num) VALUES (%s, %s, %s, %s, %s, %s, %s)",
