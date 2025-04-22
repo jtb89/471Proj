@@ -874,6 +874,31 @@ def place_order(isbn, num_copies, publisher, order_num, cost, branch_num, employ
 
 
 
+# def cancel_order(order_num):
+#     try:
+#         dataBase = mysql.connector.connect(
+#             host="localhost",
+#             user="root",
+#             passwd="471ProjServer",
+#             database="library_db"
+#         )
+#         cursor = dataBase.cursor()
+
+#         cancel_sql = """
+#         DELETE FROM ORDERS
+#         WHERE order_num = %s
+#         """
+#         cursor.execute(cancel_sql, (order_num,))
+#         dataBase.commit()
+#         return "Order canceled successfully."
+
+#     except mysql.connector.Error as err:
+#         dataBase.rollback()
+#         return f"Error: {err}"
+#     finally:
+#         cursor.close()
+#         dataBase.close()
+
 def cancel_order(order_num):
     try:
         dataBase = mysql.connector.connect(
@@ -890,14 +915,22 @@ def cancel_order(order_num):
         """
         cursor.execute(cancel_sql, (order_num,))
         dataBase.commit()
-        return "Order canceled successfully."
+
+        if cursor.rowcount == 0:
+            return {"success": False, "error": f"Order #{order_num} not found."}
+
+        return {"success": True, "message": "Order canceled successfully."}
 
     except mysql.connector.Error as err:
         dataBase.rollback()
-        return f"Error: {err}"
+        return {"success": False, "error": f"Error: {err}"}
+
     finally:
         cursor.close()
         dataBase.close()
+
+
+
 
 
 def track_order(order_num):

@@ -26,6 +26,8 @@ const Order = () => {
   const [cost, setCost] = useState("");
   const [branchNum, setBranchNum] = useState("");
   const [employeeNum, setEmployeeNum] = useState("");
+  const [deleteOrderNum, setDeleteOrderNum] = useState("");
+
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -98,6 +100,31 @@ const Order = () => {
     setNotification({ ...notification, open: false });
   };
 
+  const handleDeleteOrder = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const response = await fetch("/database/api/cancel_order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_num: deleteOrderNum }),
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        showNotification(result.message || "Order cancelled successfully!", "success");
+        setDeleteOrderNum("");
+        fetchOrders(); // Refresh list
+      } else {
+        showNotification(result.error || "Failed to cancel order", "error");
+      }
+    } catch (err) {
+      showNotification("Error connecting to server", "error");
+    }
+  };
+  
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4 }}>
@@ -149,6 +176,7 @@ const Order = () => {
                   fullWidth
                   required
                   label="Cost"
+                  type="number"
                   value={cost}
                   onChange={(e) => setCost(e.target.value)}
                 />
@@ -179,6 +207,36 @@ const Order = () => {
             </Grid>
           </form>
         </Paper>
+
+        <Typography variant="h4" gutterBottom>
+                  cancel order
+                </Typography>
+                <Paper sx={{ p: 3, mb: 6 }}>
+                  <form onSubmit={handleDeleteOrder}>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item xs={12} md={9}>
+                        <TextField
+                          fullWidth
+                          required
+                          label="Enter Order# to Cancel"
+                          value={deleteOrderNum}
+                          onChange={(e) => setDeleteOrderNum(e.target.value)}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={3}>
+                        <Button
+                          fullWidth
+                          variant="outlined"
+                          type="submit"
+                          color="error"
+                        >
+                          Cancel Order
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </form>
+                </Paper>
+        
 
         <Typography variant="h4" gutterBottom>
           View Orders

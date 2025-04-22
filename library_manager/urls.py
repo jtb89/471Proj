@@ -33,5 +33,5 @@ urlpatterns = [
     path('api/get_all_books_full', apiveiws.get_books_with_branch_and_author_api, name='get_books_with_branch_and_author_api'),
     path('api/get_all_orders', apiveiws.get_orders_api, name='get_orders_api'),
     path('api/place_order', apiveiws.place_order_api, name='place_order_api'),
-
+    path('api/cancel_order', apiveiws.cancel_order_api, name='cancel_order_api'),
 ] 

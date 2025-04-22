@@ -31,6 +31,29 @@ def get_members_api(request):
         print("Error in get_books_api:", str(e))  # This will show the real issue
         return JsonResponse({"error": str(e)}, status=500)
 
+@csrf_exempt
+def cancel_order_api(request):
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body.decode("utf-8"))
+            order_num = int(body.get("order_num"))
+
+            if not order_num:
+                return JsonResponse({"error": "Missing 'order_num'."}, status=400)
+
+            result = database_functions.cancel_order(order_num)
+
+            if result["success"]:
+                return JsonResponse({"message": result["message"]})
+            else:
+                return JsonResponse({"error": result["error"]}, status=500)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid HTTP method. Use POST."}, status=405)
+
+
 # @csrf_exempt
 # def get_orders_api(request):
 #     try:
