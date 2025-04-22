@@ -27,6 +27,12 @@ const Addbook = () => {
   const [branchId, setBranchId] = useState("");
   const [numCopies, setNumCopies] = useState(1);
   const [deleteIsbn, setDeleteIsbn] = useState("");
+  
+  // New state for update inventory section
+  const [updateIsbn, setUpdateIsbn] = useState("");
+  const [updateBranchId, setUpdateBranchId] = useState("");
+  const [updateNumCopies, setUpdateNumCopies] = useState("");
+  const [updateNumAvailable, setUpdateNumAvailable] = useState("");
 
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -92,6 +98,47 @@ const Addbook = () => {
     }
   };
 
+  // New handler for updating book inventory
+  const handleUpdateInventory = async (e) => {
+    e.preventDefault();
+    
+    if (!updateIsbn || !updateBranchId || !updateNumCopies || !updateNumAvailable) {
+      showNotification("All fields are required", "warning");
+      return;
+    }
+
+    const inventoryData = {
+      isbn: updateIsbn,
+      branch_id: parseInt(updateBranchId),
+      num_copies: parseInt(updateNumCopies),
+      num_availible: parseInt(updateNumAvailable) // Note: using the spelling from the API
+    };
+
+    try {
+      const response = await fetch("/database/api/update_book_inventory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(inventoryData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        showNotification("Inventory updated successfully!", "success");
+        // Clear form fields
+        setUpdateIsbn("");
+        setUpdateBranchId("");
+        setUpdateNumCopies("");
+        setUpdateNumAvailable("");
+        fetchBooks(); // Refresh book list
+      } else {
+        showNotification(result.error || "Failed to update inventory", "error");
+      }
+    } catch {
+      showNotification("Error connecting to server", "error");
+    }
+  };
+
   const handleDeleteBook = async (e) => {
     e.preventDefault();
     if (!deleteIsbn.trim()) {
@@ -126,6 +173,16 @@ const Addbook = () => {
 
   const handleCloseNotification = () => {
     setNotification({ ...notification, open: false });
+  };
+
+  // Helper function to prefill update form when clicking on a book row
+  const prefillUpdateForm = (book) => {
+    if (book.isbn && book.branch_id) {
+      setUpdateIsbn(book.isbn);
+      setUpdateBranchId(book.branch_id.toString());
+      setUpdateNumCopies(book.num_availible || "0");
+      setUpdateNumAvailable(book.num_availible || "0");
+    }
   };
 
   return (
@@ -209,6 +266,60 @@ const Addbook = () => {
           </form>
         </Paper>
 
+        {/* New Update Inventory Section */}
+        <Typography variant="h4" gutterBottom>
+          Update Book Inventory
+        </Typography>
+        <Paper sx={{ p: 3, mb: 6 }}>
+          <form onSubmit={handleUpdateInventory}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  required
+                  label="ISBN"
+                  value={updateIsbn}
+                  onChange={(e) => setUpdateIsbn(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  required
+                  label="Branch ID"
+                  value={updateBranchId}
+                  onChange={(e) => setUpdateBranchId(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  required
+                  label="Total Copies"
+                  type="number"
+                  value={updateNumCopies}
+                  onChange={(e) => setUpdateNumCopies(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  required
+                  label="Available Copies"
+                  type="number"
+                  value={updateNumAvailable}
+                  onChange={(e) => setUpdateNumAvailable(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Button variant="contained" color="primary" type="submit">
+                  Update Inventory
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
+        </Paper>
+
         <Typography variant="h4" gutterBottom>
           Delete Book
         </Typography>
@@ -263,6 +374,7 @@ const Addbook = () => {
                     <TableCell>Branch ID</TableCell>
                     <TableCell>Branch Name</TableCell>
                     <TableCell>Available Copies</TableCell>
+                    <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -277,11 +389,20 @@ const Addbook = () => {
                         <TableCell>{book.branch_id || "N/A"}</TableCell>
                         <TableCell>{book.branch_name || "N/A"}</TableCell>
                         <TableCell>{book.total_available || book.num_availible || 0}</TableCell>
+                        <TableCell>
+                          <Button 
+                            size="small" 
+                            onClick={() => prefillUpdateForm(book)}
+                            disabled={!book.branch_id}
+                          >
+                            Update
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={8} align="center">
+                      <TableCell colSpan={9} align="center">
                         No books found
                       </TableCell>
                     </TableRow>

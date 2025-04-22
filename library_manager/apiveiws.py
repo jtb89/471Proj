@@ -89,33 +89,6 @@ def get_orders_api(request):
         print("Error in get_orders_api:", str(e))
         return JsonResponse({"error": str(e)}, status=500)
 
-# @csrf_exempt
-# def add_book_api(request):
-#     if request.method == 'POST':
-#         try:
-#             data = json.loads(request.body)
-
-#             # Get the data from the request body
-#             title = data.get('title')
-#             genre = data.get('genre')
-#             year_written = data.get('year_written')
-#             isbn = data.get('isbn')
-#             author_id = data.get('author_id')  # Optional
-#             branch_id = data.get('branch_id', 1)
-#             num_copies = data.get('num_copies', 1)
-#             num_available = data.get('num_available', num_copies)  # ✅ Corrected spelling
-
-#             result = database_functions.add_book(
-#                 title, genre, year_written, isbn,
-#                 author_id, branch_id, num_copies, num_available  # ✅ Passed correctly
-#             )
-
-#             return JsonResponse({'message': result})
-
-#         except Exception as e:
-#             return JsonResponse({'error': str(e)}, status=400)
-#     else:
-#         return JsonResponse({'error': 'POST request required'}, status=405)
 
 
 @csrf_exempt
@@ -414,3 +387,28 @@ def return_book_api(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     else:
         return JsonResponse({'status': 'error', 'message': 'Only POST requests are allowed.'}, status=405)
+
+
+@csrf_exempt
+def get_borrowed_books_api(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            card_number = data.get("card_number")
+
+            if not card_number:
+                return JsonResponse({"error": "Missing 'card_number' in request body."}, status=400)
+
+            result = database_functions.get_member_borrowed_books(card_number)
+
+            if result["success"]:
+                return JsonResponse({"borrowed_books": result["borrowed_books"]}, status=200)
+            else:
+                return JsonResponse({"error": result["error"]}, status=500)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON in request body."}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Only POST requests are allowed."}, status=405)

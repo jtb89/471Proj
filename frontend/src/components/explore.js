@@ -203,7 +203,7 @@ const Explore = () => {
 
   useEffect(() => {
     if (searchTerm) {
-      const filtered = books.filter(book => 
+      const filtered = books.filter(book =>
         book.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         book.isbn?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         book.genre?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -217,34 +217,25 @@ const Explore = () => {
   const fetchBooks = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/database/api/books/');
-      if (!response.ok) {
-        throw new Error('Failed to fetch books');
-      }
+      const response = await fetch("/database/api/get_books_full");
+      if (!response.ok) throw new Error("Failed to fetch books");
       const data = await response.json();
-      setBooks(data.books);
+      setBooks(data.books || []);
       setError(null);
     } catch (err) {
       setError(err.message);
-      showNotification(err.message, 'error');
+      showNotification(err.message, "error");
     } finally {
       setLoading(false);
     }
   };
 
   const showNotification = (message, severity) => {
-    setNotification({
-      open: true,
-      message,
-      severity
-    });
+    setNotification({ open: true, message, severity });
   };
 
   const handleCloseNotification = () => {
-    setNotification({
-      ...notification,
-      open: false
-    });
+    setNotification({ ...notification, open: false });
   };
 
   const handleBorrow = async () => {
@@ -257,7 +248,7 @@ const Explore = () => {
           isbn: isbnInput,
           branch_id: parseInt(branchInput),
           date_out: dateOutInput || new Date().toISOString().split('T')[0],
-          date_due: dateDueInput || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2 weeks later
+          date_due: dateDueInput || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         }),
       });
       const data = await response.json();
@@ -270,7 +261,7 @@ const Explore = () => {
       showNotification(err.message, 'error');
     }
   };
-  
+
   const handleReturn = async () => {
     try {
       const response = await fetch('/database/api/return_book', {
@@ -293,7 +284,6 @@ const Explore = () => {
       showNotification(err.message, 'error');
     }
   };
-  
 
   return (
     <Container maxWidth="lg">
@@ -302,7 +292,6 @@ const Explore = () => {
           Library Book Management
         </Typography>
 
-        {/* Conditional Book Borrow/Return Box */}
         {!authInfo?.is_employee && authInfo?.identifier && (
           <Paper elevation={3} sx={{ p: 2, mb: 3, backgroundColor: '#f0f8ff' }}>
             <Typography variant="h6" gutterBottom>
@@ -331,26 +320,22 @@ const Explore = () => {
                 <TextField
                   fullWidth
                   label="Date Out"
-                  variant="outlined"
                   type="date"
+                  variant="outlined"
                   value={dateOutInput}
                   onChange={(e) => setDateOutInput(e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
+                  InputLabelProps={{ shrink: true }}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
                   label="Date Due"
-                  variant="outlined"
                   type="date"
+                  variant="outlined"
                   value={dateDueInput}
                   onChange={(e) => setDateDueInput(e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
+                  InputLabelProps={{ shrink: true }}
                 />
               </Grid>
               <Grid item>
@@ -367,7 +352,6 @@ const Explore = () => {
           </Paper>
         )}
 
-        {/* Search Bar */}
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -383,7 +367,10 @@ const Explore = () => {
           </Grid>
         </Grid>
 
-        {/* Books Table */}
+        <Typography variant="h5" gutterBottom>
+          View Books
+        </Typography>
+
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -393,31 +380,37 @@ const Explore = () => {
             <Alert severity="error" sx={{ m: 2 }}>{error}</Alert>
           ) : (
             <TableContainer sx={{ maxHeight: 440 }}>
-              <Table stickyHeader aria-label="books table">
+              <Table stickyHeader>
                 <TableHead>
                   <TableRow>
                     <TableCell>ISBN</TableCell>
                     <TableCell>Title</TableCell>
                     <TableCell>Genre</TableCell>
                     <TableCell>Year Written</TableCell>
-                    <TableCell>Author ID</TableCell>
+                    <TableCell>Author</TableCell>
+                    <TableCell>Branch ID</TableCell>
+                    <TableCell>Branch Name</TableCell>
+                    <TableCell>Available Copies</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredBooks.length > 0 ? (
-                    filteredBooks.map((book) => (
-                      <TableRow hover key={book.isbn}>
+                    filteredBooks.map((book, index) => (
+                      <TableRow key={`${book.isbn}-${book.branch_id || 'null'}-${index}`}>
                         <TableCell>{book.isbn}</TableCell>
                         <TableCell>{book.title}</TableCell>
                         <TableCell>{book.genre}</TableCell>
                         <TableCell>{book.year_written}</TableCell>
-                        <TableCell>{book.author_id}</TableCell>
+                        <TableCell>{book.author_name || "N/A"}</TableCell>
+                        <TableCell>{book.branch_id || "N/A"}</TableCell>
+                        <TableCell>{book.branch_name || "N/A"}</TableCell>
+                        <TableCell>{book.total_available ?? book.num_availible ?? 0}</TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={5} align="center">
-                        {searchTerm ? "No books match your search" : "No books found in the database"}
+                      <TableCell colSpan={8} align="center">
+                        No books found
                       </TableCell>
                     </TableRow>
                   )}
@@ -428,17 +421,8 @@ const Explore = () => {
         </Paper>
       </Box>
 
-      {/* Notification */}
-      <Snackbar 
-        open={notification.open} 
-        autoHideDuration={6000} 
-        onClose={handleCloseNotification}
-      >
-        <Alert 
-          onClose={handleCloseNotification} 
-          severity={notification.severity}
-          sx={{ width: '100%' }}
-        >
+      <Snackbar open={notification.open} autoHideDuration={6000} onClose={handleCloseNotification}>
+        <Alert onClose={handleCloseNotification} severity={notification.severity} sx={{ width: '100%' }}>
           {notification.message}
         </Alert>
       </Snackbar>
