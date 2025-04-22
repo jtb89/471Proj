@@ -32,31 +32,7 @@ const Home = () => {
           <Typography variant="h1" sx={{ fontWeight: 'bold', mb: 2, color: 'black'  }}>
             Library
           </Typography>
-          
-          {/* Search Bar */}
-          <TextField
-            label="Search Books...    "
-            variant="filled"
-            sx={{
-              backgroundColor: 'white',
-              borderRadius: '4px',
-              width: '80%',
-              maxWidth: '800px',
-            }}
-            InputProps={{
-              endAdornment: (
-                <Button 
-                  variant="contained" 
-                  color="primary"
-                  sx={{
-                    ml: 1,
-                  }}
-                >
-                  Search
-                </Button>
-              ),
-            }}
-          />
+
         </Box>
         </Container>
       </Box>

@@ -149,8 +149,6 @@ def authenticate_member(card_number, input_pin):
         dataBase.close()
 
 
-
-
 def authenticate_employee(employee_num, password):
     try:
         dataBase = mysql.connector.connect(
@@ -581,17 +579,17 @@ def create_hold(card_number, isbn, branch_id):
         holds_sql = """
             SELECT COUNT(*)
                 FROM HOLDS
-            WHERE isbn = %s AND branch_id = %s
+            WHERE isbn = %s 
         """
-        cursor.execute(holds_sql, (isbn, branch_id))
+        cursor.execute(holds_sql, isbn)
         hold_count = cursor.fetchone()[0]
 
         next_queue_position = hold_count + 1
         insert_hold_sql = """
-        INSERT INTO HOLDS (queue_position, isbn, card_number, branch_id)
-            VALUES (%s, %s, %s, %s)
+        INSERT INTO HOLDS (queue_position, isbn, card_number)
+            VALUES (%s, %s, %s)
         """
-        cursor.execute(insert_hold_sql, (next_queue_position, isbn, card_number, branch_id))
+        cursor.execute(insert_hold_sql, (next_queue_position, isbn, card_number))
         database.commit()
         return f"Hold created successfully. You are position #{next_queue_position} in the queue."
 
@@ -647,8 +645,6 @@ def delete_hold(hold_number=None, card_number=None, isbn=None):
         database.close()
 
 ## stuff josh added for testing
-
-
 
 
 def get_all_books():
@@ -707,7 +703,6 @@ def place_order(isbn, num_copies, publisher, order_num, cost, branch_num, employ
         dataBase.close()
 
 
-
 def cancel_order(order_num):
     try:
         dataBase = mysql.connector.connect(
@@ -739,9 +734,6 @@ def cancel_order(order_num):
         dataBase.close()
 
 
-
-
-
 def track_order(order_num):
     try:
         dataBase = mysql.connector.connect(
@@ -769,8 +761,6 @@ def track_order(order_num):
     finally:
         cursor.close()
         dataBase.close()
-
-
 
 
 def get_all_orders():

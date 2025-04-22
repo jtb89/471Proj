@@ -101,15 +101,6 @@ export default function Header() {
     <AppBar position="static" sx={{ backgroundColor: "#ffffff" }}>
       <Toolbar>
         <div>
-          {/* Left side title */}
-          <Button
-            variant="h6"
-            component="div"
-            sx={{ flexGrow: 1, color: "black" }}
-          >
-            Library
-          </Button>
-
           {/* Shared buttons for everyone */}
           <Button
             color="inherit"

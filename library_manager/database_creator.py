@@ -145,6 +145,7 @@ CREATE TABLE IF NOT EXISTS HOLDS(
     isbn INT NOT NULL,
     card_number INT NOT NULL,
     hold_number INT NOT NULL,
+    branch_id INT NOT NULL,
     PRIMARY KEY(card_number, isbn), # fixes the one primary key issue of only being able to put a hold one book
     CONSTRAINT fk_HOLDS_MEMBER
         FOREIGN KEY (card_number) REFERENCES MEMBER(card_number)

@@ -103,10 +103,10 @@ cursor.executemany("INSERT INTO OWNS (isbn, num_availible, num_copies, branch_id
 
 # Add borrow record
 cursor.execute("INSERT INTO BORROW (date_out, card_number, date_due, date_in, isbn) VALUES (%s, %s, %s, %s, %s)",
-               (date(2024, 2, 1), 1234, date(2024, 2, 15), None, 1001))
+               (date(2024, 2, 1), 1234, date(2024, 2, 15), None, 1001, 1))
 
 # Add hold
-cursor.execute("INSERT INTO HOLDS (queue_possition, isbn, card_number, hold_number) VALUES (%s, %s, %s, %s)",
+cursor.execute("INSERT INTO HOLDS (queue_possition, isbn, card_number, hold_number, branch_id) VALUES (%s, %s, %s, %s, %s)",
                (1, 1002, 1234, 9001))
 
 # Add order
