@@ -650,30 +650,6 @@ def delete_hold(hold_number=None, card_number=None, isbn=None):
 
 
 
-# def get_all_books():
-#     import mysql.connector
-    
-#     try:
-#         # Establish connection to MySQL
-#         connection = mysql.connector.connect(
-#             host="localhost",
-#             user="root",
-#             password="471ProjServer",
-#             database="library_db"
-#         )
-        
-#         cursor = connection.cursor(dictionary=True)
-#         query = "SELECT * FROM Book"
-#         cursor.execute(query)
-        
-#         books = cursor.fetchall()
-        
-#         cursor.close()
-#         connection.close()
-        
-#         return {"success": True, "books": books}
-#     except mysql.connector.Error as err:
-#         return {"success": False, "error": str(err)}
 
 def get_all_books():
 
@@ -699,30 +675,6 @@ def get_all_books():
         print("Database error in get_all_books():", err)  
         return {"success": False, "error": str(err)}
 
-# def place_order(isbn, num_copies, publisher, order_num, cost, branch_num, employee_num):
-#     try:
-#         dataBase = mysql.connector.connect(
-#             host="localhost",
-#             user="root",
-#             passwd="471ProjServer",
-#             database="library_db"
-#         )
-#         cursor = dataBase.cursor()
-
-#         order_sql = """
-#         INSERT INTO ORDERS (isbn, num_copies, publisher, order_num, cost, branch_num, employee_num)
-#         VALUES (%s, %s, %s, %s, %s, %s, %s)
-#         """
-#         cursor.execute(order_sql, (isbn, num_copies, publisher, order_num, cost, branch_num, employee_num))
-#         dataBase.commit()
-#         return "Order placed successfully."
-
-#     except mysql.connector.Error as err:
-#         dataBase.rollback()
-#         return f"Error: {err}"
-#     finally:
-#         cursor.close()
-#         dataBase.close()
 
 def place_order(isbn, num_copies, publisher, order_num, cost, branch_num, employee_num):
     try:
@@ -755,31 +707,6 @@ def place_order(isbn, num_copies, publisher, order_num, cost, branch_num, employ
         dataBase.close()
 
 
-
-# def cancel_order(order_num):
-#     try:
-#         dataBase = mysql.connector.connect(
-#             host="localhost",
-#             user="root",
-#             passwd="471ProjServer",
-#             database="library_db"
-#         )
-#         cursor = dataBase.cursor()
-
-#         cancel_sql = """
-#         DELETE FROM ORDERS
-#         WHERE order_num = %s
-#         """
-#         cursor.execute(cancel_sql, (order_num,))
-#         dataBase.commit()
-#         return "Order canceled successfully."
-
-#     except mysql.connector.Error as err:
-#         dataBase.rollback()
-#         return f"Error: {err}"
-#     finally:
-#         cursor.close()
-#         dataBase.close()
 
 def cancel_order(order_num):
     try:
@@ -844,27 +771,7 @@ def track_order(order_num):
         dataBase.close()
 
 
-# def get_all_orders():
-#     try:
-#         dataBase = mysql.connector.connect(
-#             host="localhost",
-#             user="root",
-#             passwd="471ProjServer",
-#             database="library_db"
-#         )
-#         cursor = dataBase.cursor(dictionary=True)
 
-#         query = "SELECT * FROM ORDERS"
-#         cursor.execute(query)
-#         orders = cursor.fetchall()
-
-#         return orders  # Returns a list of dictionaries
-
-#     except mysql.connector.Error as err:
-#         return f"Error: {err}"
-#     finally:
-#         cursor.close()
-#         dataBase.close()
 
 def get_all_orders():
     try:
@@ -974,6 +881,81 @@ def get_member_borrowed_books(card_number):
         borrowed_books = cursor.fetchall()
 
         return {"success": True, "borrowed_books": borrowed_books}
+
+    except mysql.connector.Error as err:
+        return {"success": False, "error": str(err)}
+    finally:
+        if 'cursor' in locals() and cursor:
+            cursor.close()
+        if 'dataBase' in locals() and dataBase:
+            dataBase.close()
+
+
+
+## work in proggres hold stuff
+
+def get_books_on_hold():
+    try:
+        import mysql.connector
+
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = dataBase.cursor(dictionary=True)
+
+        query = """
+            SELECT DISTINCT 
+                B.isbn,
+                B.title
+            FROM HOLDS H
+            JOIN BOOK B ON H.isbn = B.isbn
+            ORDER BY B.title;
+        """
+        cursor.execute(query)
+        books_on_hold = cursor.fetchall()
+
+        return {"success": True, "books_on_hold": books_on_hold}
+
+    except mysql.connector.Error as err:
+        return {"success": False, "error": str(err)}
+    finally:
+        if 'cursor' in locals() and cursor:
+            cursor.close()
+        if 'dataBase' in locals() and dataBase:
+            dataBase.close()
+
+def get_member_holds(card_number):
+    try:
+        import mysql.connector
+
+        dataBase = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="471ProjServer",
+            database="library_db"
+        )
+        cursor = dataBase.cursor(dictionary=True)
+
+        query = """
+            SELECT 
+                H.hold_number,
+                H.queue_possition,
+                B.isbn,
+                B.title,
+                B.genre,
+                B.year_written
+            FROM HOLDS H
+            JOIN BOOK B ON H.isbn = B.isbn
+            WHERE H.card_number = %s
+            ORDER BY H.queue_possition;
+        """
+        cursor.execute(query, (card_number,))
+        member_holds = cursor.fetchall()
+
+        return {"success": True, "member_holds": member_holds}
 
     except mysql.connector.Error as err:
         return {"success": False, "error": str(err)}

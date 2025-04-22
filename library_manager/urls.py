@@ -37,6 +37,8 @@ urlpatterns = [
     path('api/return_book', apiveiws.return_book_api, name='return_book_api'),
     path('api/borrow_book', apiveiws.borrow_book_api, name='borrow_book_api'),
     path('api/member_books', apiveiws.get_borrowed_books_api, name='get_borrowed_books_api'),
+    path('api/delete_hold', apiveiws.delete_hold_api, name='delete_hold_api'),
+    path('api/create_hold', apiveiws.create_hold_api, name='create_hold_api'),
 
 
 

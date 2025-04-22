@@ -353,6 +353,24 @@ def place_order_api(request):
         return JsonResponse({"error": "Method not allowed"}, status=405)
 
 
+# @csrf_exempt
+# def borrow_book_api(request):
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.body)
+#             card_number = data.get('card_number')
+#             isbn = data.get('isbn')
+#             date_out = data.get('date_out')
+#             date_due = data.get('date_due')
+#             branch_id = data.get('branch_id')
+
+#             result = database_functions.process_borrow(card_number, isbn, date_out, date_due, branch_id)
+#             return JsonResponse({'status': 'success', 'message': result}, status=200)
+#         except Exception as e:
+#             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+#     else:
+#         return JsonResponse({'status': 'error', 'message': 'Only POST requests are allowed.'}, status=405)
+
 @csrf_exempt
 def borrow_book_api(request):
     if request.method == 'POST':
@@ -365,7 +383,14 @@ def borrow_book_api(request):
             branch_id = data.get('branch_id')
 
             result = database_functions.process_borrow(card_number, isbn, date_out, date_due, branch_id)
-            return JsonResponse({'status': 'success', 'message': result}, status=200)
+            
+            # Check the result message
+            if result == "Book borrowed successfully":
+                return JsonResponse({'status': 'success', 'message': result}, status=200)
+            else:
+                # Handle "No copies available", "Book not owned by this branch", and other error cases
+                return JsonResponse({'status': 'error', 'message': result}, status=400)
+                
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     else:
@@ -412,3 +437,65 @@ def get_borrowed_books_api(request):
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Only POST requests are allowed."}, status=405)
+
+
+from django.http import JsonResponse
+import json
+from django.views.decorators.csrf import csrf_exempt
+from . import database_functions
+from django.db import connection
+import mysql.connector
+
+@csrf_exempt
+def create_hold_api(request):
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body.decode("utf-8"))
+            card_number = body.get('card_number')
+            isbn = body.get('isbn')
+            branch_id = body.get('branch_id')
+            
+            # Validate required parameters
+            if not all([card_number, isbn, branch_id]):
+                return JsonResponse({"error": "Missing required parameters."}, status=400)
+            
+            result = database_functions.create_hold(card_number, isbn, branch_id)
+            
+            # Assuming create_hold returns a string result
+            # Modify the function below if it returns a different structure
+            if "successfully" in result.lower():  # Check for success message
+                return JsonResponse({"success": True, "message": result})
+            else:
+                return JsonResponse({"error": result}, status=400)
+                
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid HTTP method. Use POST."}, status=405)
+
+@csrf_exempt
+def delete_hold_api(request):
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body.decode("utf-8"))
+            hold_number = body.get('hold_number')
+            card_number = body.get('card_number')
+            isbn = body.get('isbn')
+            
+            # Validate required parameters
+            if not all([hold_number, card_number, isbn]):
+                return JsonResponse({"error": "Missing required parameters."}, status=400)
+            
+            result = database_functions.delete_hold(hold_number, card_number, isbn)
+            
+            # Assuming delete_hold returns a string result
+            # Modify the function below if it returns a different structure
+            if "successfully" in result.lower():  # Check for success message
+                return JsonResponse({"success": True, "message": result})
+            else:
+                return JsonResponse({"error": result}, status=400)
+                
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid HTTP method. Use POST."}, status=405)
