@@ -346,3 +346,39 @@ def place_order_api(request):
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+@csrf_exempt
+def borrow_book_api(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            card_number = data.get('card_number')
+            isbn = data.get('isbn')
+            date_out = data.get('date_out')
+            date_due = data.get('date_due')
+            branch_id = data.get('branch_id')
+
+            result = database_functions.process_borrow(card_number, isbn, date_out, date_due, branch_id)
+            return JsonResponse({'status': 'success', 'message': result}, status=200)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Only POST requests are allowed.'}, status=405)
+
+@csrf_exempt
+def return_book_api(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            card_number = data.get('card_number')
+            isbn = data.get('isbn')
+            date_in = data.get('date_in')
+            branch_id = data.get('branch_id')
+
+            result = database_functions.process_return(card_number, isbn, date_in, branch_id)
+            return JsonResponse({'status': 'success', 'message': result}, status=200)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Only POST requests are allowed.'}, status=405)

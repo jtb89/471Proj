@@ -149,34 +149,7 @@ def authenticate_member(card_number, input_pin):
         dataBase.close()
 
 
-# def authenticate_employee(employee_id, password):
-#     try:
-#         dataBase = mysql.connector.connect(
-#             host="localhost",
-#             user="root",
-#             passwd="471ProjServer",
-#             database="library_db"
-#         )
-#         cursor = dataBase.cursor()
 
-#         get_password = """
-#         SELECT password FROM EMPLOYEE
-#         WHERE employee_id = %s
-#         """
-#         cursor.execute(get_password, (employee_id,))
-#         result = cursor.fetchone()
-
-#         if result and str(result[0]) == str(password):
-#             return True
-#         else:
-#             return False
-
-#     except mysql.connector.Error as err:
-#         print(f"Error: {err}")
-#         return False
-#     finally:
-#         cursor.close()
-#         dataBase.close()
 
 def authenticate_employee(employee_num, password):
     try:
@@ -236,125 +209,6 @@ def update_member(card_number, f_name=None, l_name=None, address=None, dob=None,
 
 
 
-# def add_book(title, genre, year_written, isbn, author_id=None):
-#     try:
-#         dataBase = mysql.connector.connect(
-#             host="localhost",
-#             user="root",
-#             passwd="471ProjServer",
-#             database="library_db"
-#         )
-#         cursor = dataBase.cursor()
-
-#         insert_book_sql = """
-#         INSERT INTO BOOK (title, genre, year_written, isbn, author_id)
-#         VALUES (%s, %s, %s, %s)
-#         """
-#         cursor.execute(insert_book_sql, (title, genre, year_written, isbn, author_id))
-
-#         if author_id is not None:
-#             insert_wrote_sql = """
-#             INSERT INTO WROTE (isbn, author_id)
-#             VALUES (%s, %s)
-#             """
-#             cursor.execute(insert_wrote_sql, (isbn, author_id))
-
-#         dataBase.commit()
-#         return "Book added successfully"
-
-#     except mysql.connector.Error as err:
-#         dataBase.rollback()
-#         return f"Error: {err}"
-#     finally:
-#         cursor.close()
-#         dataBase.close()
-
-# def add_book(title, genre, year_written, isbn, author_id=None):
-#     try:
-#         dataBase = mysql.connector.connect(
-#             host="localhost",
-#             user="root",
-#             passwd="471ProjServer",
-#             database="library_db"
-#         )
-#         cursor = dataBase.cursor()
-
-#         # If author_id is provided, include it in the SQL query
-#         if author_id is not None:
-#             insert_book_sql = """
-#             INSERT INTO BOOK (title, genre, year_written, isbn, author_id)
-#             VALUES (%s, %s, %s, %s, %s)
-#             """
-#             cursor.execute(insert_book_sql, (title, genre, year_written, isbn, author_id))
-
-#             # If an author_id is provided, insert into the WROTE table
-#             insert_wrote_sql = """
-#             INSERT INTO WROTE (isbn, author_id)
-#             VALUES (%s, %s)
-#             """
-#             cursor.execute(insert_wrote_sql, (isbn, author_id))
-
-#         insert_owns_sql = """
-#         INSERT INTO OWNS (isbn, branch_id, num_copies, num_availible)
-#         VALUES (%s, %s, %s, %s)
-#         """
-#         cursor.execute(insert_owns_sql, (isbn, branch_id, num_copies, num_availible))
-
-#         dataBase.commit()
-
-#         # Add debug to confirm the commit was successful
-#         print(f"Book '{title}' with ISBN {isbn} added successfully.")
-        
-#         return "Book added successfully"
-
-#     except mysql.connector.Error as err:
-#         dataBase.rollback()
-#         print(f"Error: {err}")  # Print the error to help debugging
-#         return f"Error: {err}"
-#     finally:
-#         cursor.close()
-#         dataBase.close()
-
-# def add_book(title, genre, year_written, isbn, author_id=None,
-#              branch_id=1, num_copies=1, num_availible=1):
-#     try:
-#         dataBase = mysql.connector.connect(
-#             host="localhost",
-#             user="root",
-#             passwd="471ProjServer",
-#             database="library_db"
-#         )
-#         cursor = dataBase.cursor()
-
-#         if author_id is not None:
-#             insert_book_sql = """
-#             INSERT INTO BOOK (title, genre, year_written, isbn, author_id)
-#             VALUES (%s, %s, %s, %s, %s)
-#             """
-#             cursor.execute(insert_book_sql, (title, genre, year_written, isbn, author_id))
-
-#             insert_wrote_sql = """
-#             INSERT INTO WROTE (isbn, author_id)
-#             VALUES (%s, %s)
-#             """
-#             cursor.execute(insert_wrote_sql, (isbn, author_id))
-#         else:
-#             insert_book_sql = """
-#             INSERT INTO BOOK (title, genre, year_written, isbn)
-#             VALUES (%s, %s, %s, %s)
-#             """
-#             cursor.execute(insert_book_sql, (title, genre, year_written, isbn))
-
-#         insert_owns_sql = """
-#         INSERT INTO OWNS (isbn, branch_id, num_copies, num_availible)
-#         VALUES (%s, %s, %s, %s)
-#         """
-#         cursor.execute(insert_owns_sql, (isbn, branch_id, num_copies, num_availible))
-
-#         dataBase.commit()
-#         return "Book successfully added"
-#     except mysql.connector.Error as err:
-#         return f"MySQL Error: {err}"
 
 def add_book(title, genre, year_written, isbn, author_id=None,
              branch_id=1, num_copies=1, num_available=1):
@@ -535,7 +389,7 @@ def process_borrow(card_number, isbn, date_out, date_due, branch_id):
         INSERT INTO BORROW (date_out, card_number, date_due, date_in, isbn)
         VALUES (%s, %s, %s, NULL, %s)
         """
-        cursor.execute(insert_borrow_sql, (date_out, card_number, date_out, date_due, isbn))
+        cursor.execute(insert_borrow_sql, (date_out, card_number, date_due, isbn))
 
         dataBase.commit()
         return "Book borrowed successfully"

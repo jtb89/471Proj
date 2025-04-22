@@ -10,6 +10,7 @@ import Addbook from "./addbook";
 import DisplayName from "./displayname";
 import Order from "./orderbook";
 import Makeaccount from "./makeaccount";
+import Mybooks from "./mybooks";
 
 import { AuthProvider } from "./authcontext";
 
@@ -36,6 +37,7 @@ const App = () => {
     <Route path="/displayname" element={<DisplayName />} />
     <Route path="/order" element={<Order />} />
     <Route path="/makeaccount" element={<Makeaccount />} />
+    <Route path="/mybooks" element={<Mybooks />} />
 
 
     </Routes>
