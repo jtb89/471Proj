@@ -439,39 +439,58 @@ def get_borrowed_books_api(request):
         return JsonResponse({"error": "Only POST requests are allowed."}, status=405)
 
 
-from django.http import JsonResponse
-import json
-from django.views.decorators.csrf import csrf_exempt
-from . import database_functions
-from django.db import connection
-import mysql.connector
+# @csrf_exempt
+# def create_hold_api(request):
+#     if request.method == 'POST':
+#         try:
+#             body = json.loads(request.body.decode("utf-8"))
+#             card_number = body.get('card_number')
+#             isbn = body.get('isbn')
+#             branch_id = body.get('branch_id')
+            
+#             # Validate required parameters
+#             if not all([card_number, isbn, branch_id]):
+#                 return JsonResponse({"error": "Missing required parameters."}, status=400)
+            
+#             result = database_functions.create_hold(card_number, isbn, branch_id)
+            
+#             # Assuming create_hold returns a string result
+#             # Modify the function below if it returns a different structure
+#             if "successfully" in result.lower():  # Check for success message
+#                 return JsonResponse({"success": True, "message": result})
+#             else:
+#                 return JsonResponse({"error": result}, status=400)
+                
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=500)
+#     else:
+#         return JsonResponse({"error": "Invalid HTTP method. Use POST."}, status=405)
 
 @csrf_exempt
 def create_hold_api(request):
     if request.method == 'POST':
         try:
             body = json.loads(request.body.decode("utf-8"))
+            print(f"Request body: {body}")  # Log the request body to check what is being sent
             card_number = body.get('card_number')
             isbn = body.get('isbn')
             branch_id = body.get('branch_id')
-            
+
             # Validate required parameters
             if not all([card_number, isbn, branch_id]):
                 return JsonResponse({"error": "Missing required parameters."}, status=400)
-            
+
             result = database_functions.create_hold(card_number, isbn, branch_id)
-            
-            # Assuming create_hold returns a string result
-            # Modify the function below if it returns a different structure
             if "successfully" in result.lower():  # Check for success message
                 return JsonResponse({"success": True, "message": result})
             else:
                 return JsonResponse({"error": result}, status=400)
-                
+            
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid HTTP method. Use POST."}, status=405)
+
 
 @csrf_exempt
 def delete_hold_api(request):

@@ -552,8 +552,57 @@ def update_queue(isbn):
         database.close()
 
 
+# def create_hold(card_number, isbn, branch_id):
+#     try:
+#         database = mysql.connector.connect(
+#             host="localhost",
+#             user="root",
+#             passwd="471ProjServer",
+#             database="library_db"
+#         )
+#         cursor = database.cursor()
+
+#         # Check how many copies are owned and avaiable
+#         check_owns_sql = """
+#             SELECT num_copies, num_availible
+#             FROM OWNS
+#             WHERE isbn = %s AND branch_id = %s     
+#         """
+#         cursor.execute(check_owns_sql, (isbn, branch_id))
+#         row = cursor.fetchone()
+#         if not row:
+#             return "Book not owned by this branch"
+
+#         num_copies, num_availible = row
+
+#         # count existing holds
+#         holds_sql = """
+#             SELECT COUNT(*)
+#                 FROM HOLDS
+#             WHERE isbn = %s 
+#         """
+#         cursor.execute(holds_sql, isbn)
+#         hold_count = cursor.fetchone()[0]
+
+#         next_queue_position = hold_count + 1
+#         insert_hold_sql = """
+#         INSERT INTO HOLDS (queue_position, isbn, card_number)
+#             VALUES (%s, %s, %s)
+#         """
+#         cursor.execute(insert_hold_sql, (next_queue_position, isbn, card_number))
+#         database.commit()
+#         return f"Hold created successfully. You are position #{next_queue_position} in the queue."
+
+#     except mysql.connector.Error as err:
+#         database.rollback()
+#         return f"Error: {err}"
+#     finally:
+#         cursor.close()
+#         database.close()
+
 def create_hold(card_number, isbn, branch_id):
     try:
+        # Establish connection to database
         database = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -562,7 +611,7 @@ def create_hold(card_number, isbn, branch_id):
         )
         cursor = database.cursor()
 
-        # Check how many copies are owned and avaiable
+        # Check how many copies are owned and available at the branch
         check_owns_sql = """
             SELECT num_copies, num_availible
             FROM OWNS
@@ -575,22 +624,30 @@ def create_hold(card_number, isbn, branch_id):
 
         num_copies, num_availible = row
 
-        # count existing holds
+        # Count the number of existing holds for this book at this branch
         holds_sql = """
-            SELECT COUNT(*)
-                FROM HOLDS
-            WHERE isbn = %s 
+            SELECT COUNT(*) 
+            FROM HOLDS
+            WHERE isbn = %s AND branch_id = %s
         """
-        cursor.execute(holds_sql, isbn)
+        cursor.execute(holds_sql, (isbn, branch_id))
         hold_count = cursor.fetchone()[0]
 
+        # Determine the next queue position based on existing holds
         next_queue_position = hold_count + 1
+
+        # Insert the new hold record with queue position
         insert_hold_sql = """
-        INSERT INTO HOLDS (queue_position, isbn, card_number)
-            VALUES (%s, %s, %s)
+            INSERT INTO HOLDS (queue_possition, isbn, card_number, hold_number, branch_id)
+            VALUES (%s, %s, %s, %s, %s)
         """
-        cursor.execute(insert_hold_sql, (next_queue_position, isbn, card_number))
+        cursor.execute(insert_hold_sql, (
+            next_queue_position, isbn, card_number, next_queue_position, branch_id
+        ))
+
+        # Commit the transaction to the database
         database.commit()
+
         return f"Hold created successfully. You are position #{next_queue_position} in the queue."
 
     except mysql.connector.Error as err:
@@ -599,6 +656,7 @@ def create_hold(card_number, isbn, branch_id):
     finally:
         cursor.close()
         database.close()
+
 
 def delete_hold(hold_number=None, card_number=None, isbn=None):
     try:
