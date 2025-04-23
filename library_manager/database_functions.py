@@ -2,7 +2,6 @@ import mysql.connector
 import library_manager
 def add_member(f_name, l_name, address, dob, email, phonenum, checked_out_books, late_charges, card_number, pin):
     try:
-        # Connect to the database
         dataBase = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -11,32 +10,27 @@ def add_member(f_name, l_name, address, dob, email, phonenum, checked_out_books,
         )
         cursor = dataBase.cursor()
 
-        # Insert the USER record
         insert_user = """
             INSERT INTO USER (f_name, l_name, address, dob, email, phonenum)
             VALUES (%s, %s, %s, %s, %s, %s)
         """
         cursor.execute(insert_user, (f_name, l_name, address, dob, email, phonenum))
 
-        # Insert the MEMBER record
         insert_member = """
             INSERT INTO MEMBER (checked_out_books, late_charges, card_number, pin, email)
             VALUES (%s, %s, %s, %s, %s)
         """
         cursor.execute(insert_member, (checked_out_books, late_charges, card_number, pin, email))
 
-        # Commit the changes
         dataBase.commit()
 
         return "Member added successfully."
 
     except mysql.connector.Error as err:
-        # Roll back if there is an error
         dataBase.rollback()
         return f"Error: {err}"
 
     finally:
-        # Make sure to close the connection
         cursor.close()
         dataBase.close()
 
@@ -115,7 +109,7 @@ def get_all_members():
         
         return {"success": True, "members": members}
     except mysql.connector.Error as err:
-        print("Database error in get_all_members():", err)  # <-- ADD THIS
+        print("Database error in get_all_members():", err) 
         return {"success": False, "error": str(err)}
 
 
@@ -249,21 +243,21 @@ def add_book(title, genre, year_written, isbn, author_id=None, branch_id=1, num_
 
         real_author_id = safe_author_id(cursor, author_id)
 
-        # Insert into BOOK - no author_id column in BOOK table
+       
         insert_book_sql = """
         INSERT INTO BOOK (title, genre, year_written, isbn)
         VALUES (%s, %s, %s, %s)
         """
         cursor.execute(insert_book_sql, (title, genre, year_written, isbn))
 
-        # Insert into OWNS - using the correct column name 'num_availible'
+        
         insert_owns_sql = """
         INSERT INTO OWNS (isbn, branch_id, num_copies, num_availible)
         VALUES (%s, %s, %s, %s) 
         """
         cursor.execute(insert_owns_sql, (isbn, branch_id, num_copies, num_available))
         
-        # If author_id is provided, create the relationship in WROTE table
+        
         if author_id is not None:
             insert_wrote_sql = """
             INSERT INTO WROTE (isbn, author_id)
@@ -274,7 +268,7 @@ def add_book(title, genre, year_written, isbn, author_id=None, branch_id=1, num_
         dataBase.commit()
         return "Book successfully added"
     except mysql.connector.Error as err:
-        # Rollback changes if something goes wrong
+        
         dataBase.rollback()
         return f"MySQL Error: {err}"
     finally:
@@ -283,39 +277,6 @@ def add_book(title, genre, year_written, isbn, author_id=None, branch_id=1, num_
         if 'dataBase' in locals() and dataBase is not None:
             dataBase.close()
 
-
-# def delete_book(isbn):
-#     try:
-#         dataBase = mysql.connector.connect(
-#             host="localhost",
-#             user="root",
-#             passwd="471ProjServer",
-#             database="library_db"
-#         )
-#         cursor = dataBase.cursor()
-
-#         check_borrow_sql = """
-#         SELECT COUNT(*) FROM BOOK
-#         WHERE isbn = %s AND date_in IS NULL
-#         """
-#         cursor.execute(check_borrow_sql, (isbn,))
-#         borrowed_count = cursor.fetchone()
-
-#         if borrowed_count and borrowed_count[0] > 0:
-#             return "Cannot delete book: It is currently borrowed"
-
-#         delete_book_sql = "DELETE FROM BOOK WHERE isbn = %s"
-#         cursor.execute(delete_book_sql, (isbn,))
-
-#         dataBase.commit()
-#         return "Book deleted successfully"
-
-#     except mysql.connector.Error as err:
-#         dataBase.rollback()
-#         return f"Error: {err}"
-#     finally:
-#         cursor.close()
-#         dataBase.close()
 
 def delete_book(isbn):
     try:
@@ -402,7 +363,7 @@ def process_borrow(card_number, isbn, date_out, date_due, branch_id):
         elif row[0] < 1:
             return "No copies available"
 
-        # Decrement availability
+        
         update_avail_sql = """
         UPDATE OWNS
         SET num_availible = num_availible - 1
@@ -410,7 +371,7 @@ def process_borrow(card_number, isbn, date_out, date_due, branch_id):
         """
         cursor.execute(update_avail_sql, (isbn, branch_id))
 
-        #Insert record into BORROW
+        
         insert_borrow_sql = """
         INSERT INTO BORROW (date_out, card_number, date_due, date_in, isbn)
         VALUES (%s, %s, %s, NULL, %s)
@@ -438,7 +399,7 @@ def process_return(card_number, isbn, date_in, branch_id):
         )
         cursor = database.cursor()
 
-        #Update the BORROW table to set the date_in
+        
         update_borrow_sql = """
             UPDATE BORROW
                 SET date_in = %s
@@ -446,11 +407,11 @@ def process_return(card_number, isbn, date_in, branch_id):
         """
         cursor.execute(update_borrow_sql, (date_in, card_number, isbn))
 
-        # check if any rows were updated (if 0, might be invalid or already returned)
+        
         if cursor.rowcount == 0:
             return "No matching borrow record found or book already returned"
 
-        # Re-increment availability in OWNS
+        
         update_owns_sql = """
             UPDATE OWNS
                 SET num_availible = num_availible + 1
@@ -552,57 +513,11 @@ def update_queue(isbn):
         database.close()
 
 
-# def create_hold(card_number, isbn, branch_id):
-#     try:
-#         database = mysql.connector.connect(
-#             host="localhost",
-#             user="root",
-#             passwd="471ProjServer",
-#             database="library_db"
-#         )
-#         cursor = database.cursor()
 
-#         # Check how many copies are owned and avaiable
-#         check_owns_sql = """
-#             SELECT num_copies, num_availible
-#             FROM OWNS
-#             WHERE isbn = %s AND branch_id = %s     
-#         """
-#         cursor.execute(check_owns_sql, (isbn, branch_id))
-#         row = cursor.fetchone()
-#         if not row:
-#             return "Book not owned by this branch"
-
-#         num_copies, num_availible = row
-
-#         # count existing holds
-#         holds_sql = """
-#             SELECT COUNT(*)
-#                 FROM HOLDS
-#             WHERE isbn = %s 
-#         """
-#         cursor.execute(holds_sql, isbn)
-#         hold_count = cursor.fetchone()[0]
-
-#         next_queue_position = hold_count + 1
-#         insert_hold_sql = """
-#         INSERT INTO HOLDS (queue_position, isbn, card_number)
-#             VALUES (%s, %s, %s)
-#         """
-#         cursor.execute(insert_hold_sql, (next_queue_position, isbn, card_number))
-#         database.commit()
-#         return f"Hold created successfully. You are position #{next_queue_position} in the queue."
-
-#     except mysql.connector.Error as err:
-#         database.rollback()
-#         return f"Error: {err}"
-#     finally:
-#         cursor.close()
-#         database.close()
 
 def create_hold(card_number, isbn, branch_id):
     try:
-        # Establish connection to database
+        
         database = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -611,7 +526,7 @@ def create_hold(card_number, isbn, branch_id):
         )
         cursor = database.cursor()
 
-        # Check how many copies are owned and available at the branch
+        
         check_owns_sql = """
             SELECT num_copies, num_availible
             FROM OWNS
@@ -624,7 +539,7 @@ def create_hold(card_number, isbn, branch_id):
 
         num_copies, num_availible = row
 
-        # Count the number of existing holds for this book at this branch
+       
         holds_sql = """
             SELECT COUNT(*) 
             FROM HOLDS
@@ -633,10 +548,10 @@ def create_hold(card_number, isbn, branch_id):
         cursor.execute(holds_sql, (isbn, branch_id))
         hold_count = cursor.fetchone()[0]
 
-        # Determine the next queue position based on existing holds
+        
         next_queue_position = hold_count + 1
 
-        # Insert the new hold record with queue position
+        
         insert_hold_sql = """
             INSERT INTO HOLDS (queue_possition, isbn, card_number, hold_number, branch_id)
             VALUES (%s, %s, %s, %s, %s)
@@ -645,7 +560,7 @@ def create_hold(card_number, isbn, branch_id):
             next_queue_position, isbn, card_number, next_queue_position, branch_id
         ))
 
-        # Commit the transaction to the database
+        
         database.commit()
 
         return f"Hold created successfully. You are position #{next_queue_position} in the queue."
@@ -702,7 +617,6 @@ def delete_hold(hold_number=None, card_number=None, isbn=None):
         cursor.close()
         database.close()
 
-## stuff josh added for testing
 
 
 def get_all_books():
@@ -740,7 +654,7 @@ def place_order(isbn, num_copies, publisher, order_num, cost, branch_num, employ
         )
         cursor = dataBase.cursor()
 
-        # Check if publisher exists
+        
         cursor.execute("SELECT 1 FROM PUBLISHER WHERE publisher_name = %s", (publisher,))
         if cursor.fetchone() is None:
             return f"Error: Publisher '{publisher}' does not exist in the database."
@@ -831,7 +745,7 @@ def get_all_orders():
         )
         cursor = dataBase.cursor(dictionary=True)
 
-        # Query to retrieve all relevant columns
+        
         query = """
         SELECT
             o.order_num,
@@ -851,7 +765,7 @@ def get_all_orders():
         cursor.execute(query)
         orders = cursor.fetchall()
 
-        return orders  # Returns a list of dictionaries
+        return orders  
 
     except mysql.connector.Error as err:
         return f"Error: {err}"
@@ -939,8 +853,6 @@ def get_member_borrowed_books(card_number):
             dataBase.close()
 
 
-
-## work in proggres hold stuff
 
 def get_books_on_hold():
     try:

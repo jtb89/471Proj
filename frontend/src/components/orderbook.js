@@ -115,7 +115,7 @@ const Order = () => {
       if (response.ok) {
         showNotification(result.message || "Order cancelled successfully!", "success");
         setDeleteOrderNum("");
-        fetchOrders(); // Refresh list
+        fetchOrders(); 
       } else {
         showNotification(result.error || "Failed to cancel order", "error");
       }

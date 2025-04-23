@@ -1,7 +1,8 @@
+// this code was not used
+
 import React, { useState } from 'react';
 
 const About = () => {
-    // Set up the state to hold form data
     const [fName, setFName] = useState('');
     const [lName, setLName] = useState('');
     const [address, setAddress] = useState('');
@@ -14,7 +15,6 @@ const About = () => {
     const [pin, setPin] = useState('');
     const [message, setMessage] = useState('');
 
-    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -31,7 +31,7 @@ const About = () => {
             pin: pin,
         };
 
-        // Send POST request to Django API
+        
         try {
             const response = await fetch('/database/api/add-member/', {
                 method: 'POST',

@@ -28,7 +28,7 @@ const Addbook = () => {
   const [numCopies, setNumCopies] = useState(1);
   const [deleteIsbn, setDeleteIsbn] = useState("");
   
-  // New state for update inventory section
+ 
   const [updateIsbn, setUpdateIsbn] = useState("");
   const [updateBranchId, setUpdateBranchId] = useState("");
   const [updateNumCopies, setUpdateNumCopies] = useState("");
@@ -54,7 +54,7 @@ const Addbook = () => {
       const response = await fetch("/database/api/get_books_full");
       if (!response.ok) throw new Error("Failed to fetch books");
       const data = await response.json();
-      console.log("Books data:", data); // Debug: Check the actual data structure
+      console.log("Books data:", data); 
       setBooks(data.books || []);
       setError(null);
     } catch (err) {
@@ -98,7 +98,7 @@ const Addbook = () => {
     }
   };
 
-  // New handler for updating book inventory
+  
   const handleUpdateInventory = async (e) => {
     e.preventDefault();
     
@@ -111,7 +111,7 @@ const Addbook = () => {
       isbn: updateIsbn,
       branch_id: parseInt(updateBranchId),
       num_copies: parseInt(updateNumCopies),
-      num_availible: parseInt(updateNumAvailable) // Note: using the spelling from the API
+      num_availible: parseInt(updateNumAvailable) 
     };
 
     try {
@@ -125,12 +125,12 @@ const Addbook = () => {
 
       if (response.ok) {
         showNotification("Inventory updated successfully!", "success");
-        // Clear form fields
+        
         setUpdateIsbn("");
         setUpdateBranchId("");
         setUpdateNumCopies("");
         setUpdateNumAvailable("");
-        fetchBooks(); // Refresh book list
+        fetchBooks(); 
       } else {
         showNotification(result.error || "Failed to update inventory", "error");
       }
@@ -175,7 +175,7 @@ const Addbook = () => {
     setNotification({ ...notification, open: false });
   };
 
-  // Helper function to prefill update form when clicking on a book row
+  
   const prefillUpdateForm = (book) => {
     if (book.isbn && book.branch_id) {
       setUpdateIsbn(book.isbn);
@@ -266,7 +266,7 @@ const Addbook = () => {
           </form>
         </Paper>
 
-        {/* New Update Inventory Section */}
+        
         <Typography variant="h4" gutterBottom>
           Update Book Inventory
         </Typography>

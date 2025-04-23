@@ -41,7 +41,7 @@ export default function SignIn() {
 
       const result = await response.json();
       if (response.ok && result.success) {
-        // Only store identifier and is_employee
+       
         login({ identifier, is_employee: isEmployee });
         
         

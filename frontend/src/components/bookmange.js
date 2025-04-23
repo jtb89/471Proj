@@ -8,16 +8,16 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 
 const BookManagement = () => {
-  // State for book list
+  
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
-  // State for search
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredBooks, setFilteredBooks] = useState([]);
   
-  // State for add book form
+  
   const [openAddDialog, setOpenAddDialog] = useState(false);
   
   const [newBook, setNewBook] = useState({
@@ -32,19 +32,19 @@ const BookManagement = () => {
   });
   
   
-  // State for notifications
+  
   const [notification, setNotification] = useState({
     open: false,
     message: '',
     severity: 'success'
   });
 
-  // Load books on component mount
+ 
   useEffect(() => {
     fetchBooks();
   }, []);
 
-  // Update filtered books when books or search term changes
+  
   useEffect(() => {
     if (searchTerm) {
       const filtered = books.filter(book => 
@@ -58,7 +58,7 @@ const BookManagement = () => {
     }
   }, [books, searchTerm]);
 
-  // Fetch books from API
+ 
   const fetchBooks = async () => {
     setLoading(true);
     try {
@@ -77,7 +77,7 @@ const BookManagement = () => {
     }
   };
 
-  // Handle form input changes
+ 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewBook({
@@ -86,7 +86,7 @@ const BookManagement = () => {
     });
   };
 
-  // Handle add book
+  
   const handleAddBook = async () => {
     try {
       const response = await fetch('/database/api/add_book/', {
@@ -112,7 +112,7 @@ const BookManagement = () => {
     }
   };
 
-  // Reset the new book form
+ 
   const resetNewBookForm = () => {
     setNewBook({
       title: '',
@@ -123,7 +123,7 @@ const BookManagement = () => {
     });
   };
 
-  // Show notification
+
   const showNotification = (message, severity) => {
     setNotification({
       open: true,
@@ -132,7 +132,6 @@ const BookManagement = () => {
     });
   };
 
-  // Close notification
   const handleCloseNotification = () => {
     setNotification({
       ...notification,
@@ -147,7 +146,7 @@ const BookManagement = () => {
           Library Book Management
         </Typography>
         
-        {/* Search and Add Book Controls */}
+        
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -217,7 +216,7 @@ const BookManagement = () => {
         </Paper>
       </Box>
       
-      {/* Add Book Dialog */}
+      
       <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)}>
         <DialogTitle>Add New Book</DialogTitle>
         <DialogContent>
@@ -282,7 +281,7 @@ const BookManagement = () => {
         </DialogActions>
       </Dialog>
       
-      {/* Notification */}
+      
       <Snackbar 
         open={notification.open} 
         autoHideDuration={6000} 

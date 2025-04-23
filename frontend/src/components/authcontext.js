@@ -1,21 +1,3 @@
-// import React, { createContext, useState, useContext } from 'react';
-
-// const AuthContext = createContext();
-
-// export const AuthProvider = ({ children }) => {
-//   const [user, setUser] = useState(null); // will hold user info from backend
-
-//   return (
-//     <AuthContext.Provider value={{ user, setUser }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
-
-// // Hook for easy access
-// export const useAuth = () => useContext(AuthContext);
-
-// authcontext.js
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 

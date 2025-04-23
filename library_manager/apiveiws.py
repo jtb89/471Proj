@@ -10,26 +10,26 @@ import mysql.connector
 def get_books_api(request):
     try:
         books_result = database_functions.get_all_books()
-        print("Books result:", books_result)  # Debug print
+        print("Books result:", books_result)  
         if books_result["success"]:
             return JsonResponse({"books": books_result["books"]})
         else:
             return JsonResponse({"error": books_result["error"]}, status=500)
     except Exception as e:
-        print("Error in get_books_api:", str(e))  # This will show the real issue
+        print("Error in get_books_api:", str(e)) 
         return JsonResponse({"error": str(e)}, status=500)
 
 @csrf_exempt
 def get_members_api(request):
     try:
         books_result = database_functions.get_all_books()
-        print("Books result:", books_result)  # Debug print
+        print("Books result:", books_result)  
         if books_result["success"]:
             return JsonResponse({"books": books_result["books"]})
         else:
             return JsonResponse({"error": books_result["error"]}, status=500)
     except Exception as e:
-        print("Error in get_books_api:", str(e))  # This will show the real issue
+        print("Error in get_books_api:", str(e))  
         return JsonResponse({"error": str(e)}, status=500)
 
 @csrf_exempt
@@ -55,32 +55,16 @@ def cancel_order_api(request):
         return JsonResponse({"error": "Invalid HTTP method. Use POST."}, status=405)
 
 
-# @csrf_exempt
-# def get_orders_api(request):
-#     try:
-#         orders_result = database_functions.get_all_orders()
-#         print("Orders result:", orders_result)  # Debug print
-
-#         # If the result is a list, it's a success. If it's a string, it's an error message.
-#         if isinstance(orders_result, list):
-#             return JsonResponse({"orders": orders_result})
-#         else:
-#             return JsonResponse({"error": orders_result}, status=500)
-
-#     except Exception as e:
-#         print("Error in get_orders_api:", str(e))
-#         return JsonResponse({"error": str(e)}, status=500)
-
 @csrf_exempt
 def get_orders_api(request):
     try:
-        # Call the function to get all orders
+       
         orders_result = database_functions.get_all_orders()
-        print("Orders result:", orders_result)  # Debug print
+        print("Orders result:", orders_result)  
 
-        # If the result is a list, it's a success. If it's a string, it's an error message.
+        
         if isinstance(orders_result, list):
-            # Format the result into a structured response
+            
             return JsonResponse({"orders": orders_result})
         else:
             return JsonResponse({"error": orders_result}, status=500)
@@ -104,30 +88,30 @@ def add_book_api(request):
         author_id = data.get('real_author_id')
         branch_id = data.get('branch_id', 1)
         num_copies = data.get('num_copies', 1)
-        num_available = data.get('num_available', num_copies)  # Default to num_copies if not provided
+        num_available = data.get('num_available', num_copies)  
 
         try:
             with connection.cursor() as cursor:
-                # Insert into BOOK
+                
                 cursor.execute("""
                     INSERT INTO BOOK (isbn, title, genre, year_written)
                     VALUES (%s, %s, %s, %s)
                 """, [isbn, title, genre, year_written])
 
-                # Insert into WROTE if author_id is provided
+                
                 if author_id:
                     cursor.execute("""
                         INSERT INTO WROTE (author_id, isbn)
                         VALUES (%s, %s)
                     """, [author_id, isbn])
 
-                # Insert into OWNS with num_availible field
+                
                 cursor.execute("""
                     INSERT INTO OWNS (branch_id, isbn, num_copies, num_availible)
                     VALUES (%s, %s, %s, %s)
                 """, [branch_id, isbn, num_copies, num_available])
 
-                connection.commit()  # Explicitly commit the transaction
+                connection.commit()  
 
             return JsonResponse({'message': 'Book added successfully!'})
         except mysql.connector.errors.IntegrityError as e:
@@ -141,7 +125,7 @@ def add_member_api(request):
         try:
             data = json.loads(request.body)
 
-            # Extract data from the request
+            
             f_name = data.get('f_name')
             l_name = data.get('l_name')
             address = data.get('address')
@@ -153,7 +137,7 @@ def add_member_api(request):
             card_number = data.get('card_number')
             pin = data.get('pin')
 
-            # Call the function to add the member to the database
+            
             result = database_functions.add_member(
                 f_name, l_name, address, dob, email, phonenum,
                 checked_out_books, late_charges, card_number, pin
@@ -166,7 +150,7 @@ def add_member_api(request):
     else:
         return JsonResponse({"error": "POST request required"}, status=405)
 
-## log in
+
 @csrf_exempt
 def authenticate_api(request):
     if request.method == 'POST':
@@ -270,11 +254,11 @@ def update_book_inventory_api(request):
 def get_books_full_api(request):
     if request.method == 'GET':
         try:
-            # Call the helper function from database_functions
+            
             books_result = database_functions.get_books_full()
-            print("Books result:", books_result)  # Debug print for development
+            print("Books result:", books_result)  
 
-            # Check for successful result
+           
             if books_result.get("success"):
                 return JsonResponse({
                     "status": "success",
@@ -287,7 +271,7 @@ def get_books_full_api(request):
                 }, status=500)
         
         except Exception as e:
-            print("Error in get_books_full_api:", str(e))  # Log the error
+            print("Error in get_books_full_api:", str(e))  
             return JsonResponse({
                 "status": "error",
                 "message": str(e)
@@ -304,10 +288,10 @@ def get_books_full_api(request):
 def place_order_api(request):
     if request.method == "POST":
         try:
-            # Parse the incoming JSON data from the POST request
+           
             data = json.loads(request.body)
             
-            # Extract the necessary fields from the incoming data
+            
             isbn = data.get("isbn")
             num_copies = data.get("num_copies")
             publisher = data.get("publisher")
@@ -316,20 +300,20 @@ def place_order_api(request):
             branch_num = data.get("branch_num")
             employee_num = data.get("employee_num")
             
-            # Ensure that all required fields are provided
+            
             if not all([isbn, num_copies, publisher, order_num, cost, branch_num, employee_num]):
                 return JsonResponse({"error": "Missing required fields"}, status=400)
             
-            # Call the place_order function from the database_functions module
+            
             result = database_functions.place_order(
                 isbn, num_copies, publisher, order_num, cost, branch_num, employee_num
             )
 
-            # If the result is an error message, return it
+            
             if "Error" in result:
                 return JsonResponse({"error": result}, status=500)
             
-            # If the order is successfully placed, return the success message
+            
             return JsonResponse({"message": "Order placed successfully!"}, status=200)
         
         except json.JSONDecodeError:
@@ -353,11 +337,11 @@ def borrow_book_api(request):
 
             result = database_functions.process_borrow(card_number, isbn, date_out, date_due, branch_id)
             
-            # Check the result message
+            
             if result == "Book borrowed successfully":
                 return JsonResponse({'status': 'success', 'message': result}, status=200)
             else:
-                # Handle "No copies available", "Book not owned by this branch", and other error cases
+                
                 return JsonResponse({'status': 'error', 'message': result}, status=400)
                 
         except Exception as e:
@@ -415,17 +399,17 @@ def create_hold_api(request):
     if request.method == 'POST':
         try:
             body = json.loads(request.body.decode("utf-8"))
-            print(f"Request body: {body}")  # Log the request body to check what is being sent
+            print(f"Request body: {body}") 
             card_number = body.get('card_number')
             isbn = body.get('isbn')
             branch_id = body.get('branch_id')
 
-            # Validate required parameters
+           
             if not all([card_number, isbn, branch_id]):
                 return JsonResponse({"error": "Missing required parameters."}, status=400)
 
             result = database_functions.create_hold(card_number, isbn, branch_id)
-            if "successfully" in result.lower():  # Check for success message
+            if "successfully" in result.lower():  
                 return JsonResponse({"success": True, "message": result})
             else:
                 return JsonResponse({"error": result}, status=400)
@@ -445,15 +429,14 @@ def delete_hold_api(request):
             card_number = body.get('card_number')
             isbn = body.get('isbn')
             
-            # Validate required parameters
+            
             if not all([hold_number, card_number, isbn]):
                 return JsonResponse({"error": "Missing required parameters."}, status=400)
             
             result = database_functions.delete_hold(hold_number, card_number, isbn)
             
-            # Assuming delete_hold returns a string result
-            # Modify the function below if it returns a different structure
-            if "successfully" in result.lower():  # Check for success message
+            
+            if "successfully" in result.lower(): 
                 return JsonResponse({"success": True, "message": result})
             else:
                 return JsonResponse({"error": result}, status=400)

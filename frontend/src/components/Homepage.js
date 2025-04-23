@@ -6,7 +6,7 @@ import Container from '@mui/material/Container';
 const Home = () => {
   return (
     <>
-      {/* Hero Section (Book Image) */}
+      
       <Box 
         sx={{
           position: 'relative',
@@ -17,7 +17,7 @@ const Home = () => {
           backgroundPosition: 'center',
         }}
       >
-        {/* Overlay with text */}
+        
         <Container component="main" maxWidth="xs">
         <Box
           sx={{
