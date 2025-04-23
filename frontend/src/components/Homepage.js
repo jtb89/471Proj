@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField, Button, Box, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import Container from '@mui/material/Container';
 
 
@@ -37,11 +37,7 @@ const Home = () => {
         </Container>
       </Box>
 
-      <Container>
-        <Typography>
-          asdfnlkann
-        </Typography>
-      </Container>
+      
     </>
   );
 };

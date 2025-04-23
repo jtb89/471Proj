@@ -266,19 +266,6 @@ def update_book_inventory_api(request):
         return JsonResponse({"error": "Only POST method is allowed"}, status=405)
 
 
-# @csrf_exempt
-# def get_books_with_branch_and_author_api(request):
-#     try:
-#         books_result = database_functions.get_books_with_branch_and_author()
-#         print("Books result:", books_result)  # Debug print
-#         if books_result["success"]:
-#             return JsonResponse({"books": books_result["books"]})
-#         else:
-#             return JsonResponse({"error": books_result["error"]}, status=500)
-#     except Exception as e:
-#         print("Error in get_books_api:", str(e))  # This will show the real issue
-#         return JsonResponse({"error": str(e)}, status=500)
-
 @csrf_exempt
 def get_books_full_api(request):
     if request.method == 'GET':
@@ -353,24 +340,6 @@ def place_order_api(request):
         return JsonResponse({"error": "Method not allowed"}, status=405)
 
 
-# @csrf_exempt
-# def borrow_book_api(request):
-#     if request.method == 'POST':
-#         try:
-#             data = json.loads(request.body)
-#             card_number = data.get('card_number')
-#             isbn = data.get('isbn')
-#             date_out = data.get('date_out')
-#             date_due = data.get('date_due')
-#             branch_id = data.get('branch_id')
-
-#             result = database_functions.process_borrow(card_number, isbn, date_out, date_due, branch_id)
-#             return JsonResponse({'status': 'success', 'message': result}, status=200)
-#         except Exception as e:
-#             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-#     else:
-#         return JsonResponse({'status': 'error', 'message': 'Only POST requests are allowed.'}, status=405)
-
 @csrf_exempt
 def borrow_book_api(request):
     if request.method == 'POST':
@@ -439,32 +408,7 @@ def get_borrowed_books_api(request):
         return JsonResponse({"error": "Only POST requests are allowed."}, status=405)
 
 
-# @csrf_exempt
-# def create_hold_api(request):
-#     if request.method == 'POST':
-#         try:
-#             body = json.loads(request.body.decode("utf-8"))
-#             card_number = body.get('card_number')
-#             isbn = body.get('isbn')
-#             branch_id = body.get('branch_id')
-            
-#             # Validate required parameters
-#             if not all([card_number, isbn, branch_id]):
-#                 return JsonResponse({"error": "Missing required parameters."}, status=400)
-            
-#             result = database_functions.create_hold(card_number, isbn, branch_id)
-            
-#             # Assuming create_hold returns a string result
-#             # Modify the function below if it returns a different structure
-#             if "successfully" in result.lower():  # Check for success message
-#                 return JsonResponse({"success": True, "message": result})
-#             else:
-#                 return JsonResponse({"error": result}, status=400)
-                
-#         except Exception as e:
-#             return JsonResponse({"error": str(e)}, status=500)
-#     else:
-#         return JsonResponse({"error": "Invalid HTTP method. Use POST."}, status=405)
+
 
 @csrf_exempt
 def create_hold_api(request):

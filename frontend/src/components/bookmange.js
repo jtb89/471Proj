@@ -19,13 +19,7 @@ const BookManagement = () => {
   
   // State for add book form
   const [openAddDialog, setOpenAddDialog] = useState(false);
-  // const [newBook, setNewBook] = useState({
-  //   title: '',
-  //   genre: '',
-  //   year_written: '',
-  //   isbn: '',
-  //   author_id: ''
-  // });
+  
   const [newBook, setNewBook] = useState({
     title: '',
     genre: '',

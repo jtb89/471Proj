@@ -45,7 +45,7 @@ export default function SignIn() {
         login({ identifier, is_employee: isEmployee });
         
         
-        navigate("/displayname");
+        navigate("/");
       } else {
         alert(result.error || "Login failed.");
       }

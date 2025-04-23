@@ -277,7 +277,7 @@ import { useAuth } from "./authcontext";
 const Explore = () => {
   const { authInfo } = useAuth();
 
-  if (!authInfo) return <CircularProgress />;
+  
 
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
