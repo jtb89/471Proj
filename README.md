@@ -15,6 +15,9 @@ In the 471proj directory either from a terminal or within your IDE:
   You may need to install the Python 3 and MySQL development headers and libraries like so:
   This should not be necessary for Windows you should be able to pip install mysqlclient
 
+  if you have pipenv installed just use pipenv shell for all the pythin packages
+    $ pip install --user pipenv
+
     $ sudo apt-get install python3-dev default-libmysqlclient-dev build-essential pkg-config # Debian / Ubuntu
     % sudo yum install python3-devel mysql-devel pkgconfig # Red Hat / CentOS
   
@@ -26,21 +29,17 @@ If you are having trouble installing mysqlclient check out the developers README
 
   For react make sure you have react downloaded
 
+
   from a second terminal differnt from the django server cd into the frontend directory
   if first time run "npm install" to download dependencies
 
   now useing matirial ui stuff for css
 
-  then with the django server running type  python manage.py runserver
-  " npm run dev" still inside the frontend directory to start the react stuff
+  to start the django server django server type python manage.py runserver in terminal 1
+  and to start react type " npm run dev" in terminal 2 still inside the frontend directory to start the react 
   and now by going to http://127.0.0.1:8000 the frontend should be loaded
 
-  super user admin page log in = 
-  username: user
-  email bib@email.ca
-  password: password
-
-
+  
 
   may need to fix later
 
